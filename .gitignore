@@ -1,5 +1,87 @@
+# IDE files
+.vs/
+.idea/
+.vscode/
+*.suo
+*.user
+*.userosscache
+*.sln.docstates
+*.userprefs
+
+# Build results
+[Dd]ebug/
+[Dd]ebugPublic/
+[Rr]elease/
+[Rr]eleases/
+x64/
+x86/
+build/
+bld/
 bin/
 obj/
-/packages/
-riderModule.iml
-/_ReSharper.Caches/
+[Ll]og/
+[Ll]ogs/
+
+# MSTest test Results
+[Tt]est[Rr]esult*/
+[Bb]uild[Ll]og.*
+
+# NUNIT
+*.VisualState.xml
+TestResult.xml
+
+# Build Results of an ATL Project
+[Dd]ebugPS/
+[Rr]eleasePS/
+dlldata.c
+
+# .NET Core
+project.lock.json
+project.fragment.lock.json
+artifacts/
+**/Properties/launchSettings.json
+
+# Visual Studio cache files
+# files ending in .cache can be ignored
+*.[Cc]ache
+# but keep track of directories ending in .cache
+!*.[Cc]ache/
+
+# SQL Server files
+*.mdf
+*.ldf
+*.ndf
+
+# User-specific files
+*.rsuser
+
+# Secrets
+appsettings.*.json
+!appsettings.json
+!appsettings.Development.json
+!appsettings.Test.json
+*.pfx
+*.publishsettings
+appsettings.Production.json
+appsettings.Staging.json
+
+# JetBrains Rider
+.idea/
+*.sln.iml
+
+# Visual Studio Code
+.vscode/*
+!.vscode/settings.json
+!.vscode/tasks.json
+!.vscode/launch.json
+!.vscode/extensions.json
+
+# Others
+ClientApp/dist/
+node_modules/
+*.swp
+*~
+*.dbmdl
+*.jfm
+.DS_Store
+Thumbs.db
