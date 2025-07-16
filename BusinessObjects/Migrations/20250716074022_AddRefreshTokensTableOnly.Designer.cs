@@ -13,8 +13,8 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace BusinessObjects.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20250716064541_AddRefreshTokensTable")]
-    partial class AddRefreshTokensTable
+    [Migration("20250716074022_AddRefreshTokensTableOnly")]
+    partial class AddRefreshTokensTableOnly
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)

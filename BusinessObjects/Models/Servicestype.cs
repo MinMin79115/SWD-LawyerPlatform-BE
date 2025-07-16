@@ -6,6 +6,8 @@ namespace BusinessObjects.Models;
 public partial class Servicestype
 {
     public int Servicetypeid { get; set; }
+    
+    public ServiceType ServicesType { get; set; }
 
     public virtual ICollection<Lawform> Lawforms { get; set; } = new List<Lawform>();
 

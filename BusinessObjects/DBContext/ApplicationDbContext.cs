@@ -83,6 +83,11 @@ public partial class ApplicationDbContext : DbContext
             entity.Property(e => e.Scheduledate).HasColumnName("scheduledate");
             entity.Property(e => e.Scheduletime).HasColumnName("scheduletime");
             entity.Property(e => e.Serviceid).HasColumnName("serviceid");
+            entity.Property(e => e.Status)
+                .HasColumnName("status")
+                .HasColumnType("appointment_status")
+                .HasDefaultValue(AppointmentStatus.Pending)
+                .HasConversion<string>();
             entity.Property(e => e.Totalamount)
                 .HasPrecision(10, 2)
                 .HasDefaultValueSql("0.00")
@@ -129,6 +134,11 @@ public partial class ApplicationDbContext : DbContext
             entity.Property(e => e.Linkform)
                 .HasMaxLength(500)
                 .HasColumnName("linkform");
+            entity.Property(e => e.Status)
+                .HasColumnName("status")
+                .HasColumnType("form_status")
+                .HasDefaultValue(FormStatus.Draft)
+                .HasConversion<string>();
             entity.Property(e => e.Totalamount)
                 .HasPrecision(10, 2)
                 .HasDefaultValueSql("0.00")
@@ -157,6 +167,10 @@ public partial class ApplicationDbContext : DbContext
             entity.ToTable("durations");
 
             entity.Property(e => e.Durationid).HasColumnName("durationid");
+            entity.Property(e => e.Duration)
+                .HasColumnName("duration")
+                .HasColumnType("duration_type")
+                .HasConversion<string>();
         });
 
         modelBuilder.Entity<Feedback>(entity =>
@@ -227,6 +241,10 @@ public partial class ApplicationDbContext : DbContext
             entity.ToTable("lawtypes");
 
             entity.Property(e => e.Lawtypeid).HasColumnName("lawtypeid");
+            entity.Property(e => e.LawType)
+                .HasColumnName("lawtype")
+                .HasColumnType("law_type")
+                .HasConversion<string>();
         });
 
         modelBuilder.Entity<Lawyer>(entity =>
@@ -328,6 +346,11 @@ public partial class ApplicationDbContext : DbContext
                 .HasDefaultValueSql("CURRENT_TIMESTAMP")
                 .HasColumnType("timestamp without time zone")
                 .HasColumnName("paymentdate");
+            entity.Property(e => e.Status)
+                .HasColumnName("status")
+                .HasColumnType("payment_status")
+                .HasDefaultValue(PaymentStatus.Pending)
+                .HasConversion<string>();
             entity.Property(e => e.Transactionid)
                 .HasMaxLength(255)
                 .HasColumnName("transactionid");
@@ -437,6 +460,10 @@ public partial class ApplicationDbContext : DbContext
             entity.ToTable("servicestypes");
 
             entity.Property(e => e.Servicetypeid).HasColumnName("servicetypeid");
+            entity.Property(e => e.ServicesType)
+                .HasColumnName("servicestype")
+                .HasColumnType("service_type")
+                .HasConversion<string>();
         });
 
         modelBuilder.Entity<User>(entity =>
@@ -469,6 +496,11 @@ public partial class ApplicationDbContext : DbContext
             entity.Property(e => e.Phone)
                 .HasMaxLength(20)
                 .HasColumnName("phone");
+            entity.Property(e => e.Role)
+                .HasColumnName("role")
+                .HasColumnType("user_role")
+                .HasDefaultValue(UserRole.Customer)
+                .HasConversion<string>();
             entity.Property(e => e.Updatedat)
                 .HasDefaultValueSql("CURRENT_TIMESTAMP")
                 .HasColumnType("timestamp without time zone")

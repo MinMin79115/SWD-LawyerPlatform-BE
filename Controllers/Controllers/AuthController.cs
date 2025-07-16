@@ -100,7 +100,6 @@ namespace Controllers.Controllers
                     Code = 200,
                     Status = true,
                     Message = "Làm mới token thành công",
-                    Data = new { token = result.Token, refreshToken = result.RefreshToken }
                 });
             }
             

@@ -18,6 +18,8 @@ public partial class Payment
     public decimal Amount { get; set; }
 
     public string? Transactionid { get; set; }
+    
+    public PaymentStatus Status { get; set; } = PaymentStatus.Pending;
 
     public DateTime? Paymentdate { get; set; }
 

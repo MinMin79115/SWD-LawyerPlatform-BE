@@ -10,6 +10,8 @@ public partial class Customerform
     public int? Userid { get; set; }
 
     public int? Lawformid { get; set; }
+    
+    public FormStatus Status { get; set; } = FormStatus.Draft;
 
     public decimal Totalamount { get; set; }
 

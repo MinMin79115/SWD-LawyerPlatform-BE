@@ -9,6 +9,6 @@ namespace Services.Interfaces
         Task<AuthResult> LoginAsync(LoginRequest request);
         Task<AuthResult> RegisterAsync(RegisterRequest request);
         Task<AuthResult> RefreshTokenAsync(TokenRequest tokenRequest);
-        Task<string> GenerateJwtToken(string email, string role, int userId);
+        string GenerateJwtToken(string email, string role, int userId, string jwtId);
     }
 } 

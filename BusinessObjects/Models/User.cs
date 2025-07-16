@@ -3,6 +3,14 @@ using System.Collections.Generic;
 
 namespace BusinessObjects.Models;
 
+// Định nghĩa enum UserRole để map với user_role trong PostgreSQL
+public enum UserRole
+{
+    Customer,
+    Lawyer,
+    Admin
+}
+
 public partial class User
 {
     public int Userid { get; set; }
@@ -16,6 +24,8 @@ public partial class User
     public string? Phone { get; set; }
 
     public string? Avatar { get; set; }
+    
+    public UserRole Role { get; set; } = UserRole.Customer; // Sử dụng enum UserRole
 
     public DateTime? Createdat { get; set; }
 
