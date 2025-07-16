@@ -1,6 +1,57 @@
-@Controllers_HostAddress = http://localhost:5067
+@baseUrl = http://localhost:5000
+@token = 
 
-GET {{Controllers_HostAddress}}/weatherforecast/
+### Test Ping-Pong API
+GET {{baseUrl}}/api/PingPong/ping
 Accept: application/json
 
-###
+### Đăng ký tài khoản khách hàng
+POST {{baseUrl}}/api/Auth/register
+Content-Type: application/json
+
+{
+  "email": "customer@example.com",
+  "password": "Password123",
+  "confirmPassword": "Password123",
+  "name": "Khách Hàng",
+  "phone": "0123456789"
+}
+
+### Đăng ký tài khoản khách hàng khác
+POST {{baseUrl}}/api/Auth/register
+Content-Type: application/json
+
+{
+  "email": "customer2@example.com",
+  "password": "Password123",
+  "confirmPassword": "Password123",
+  "name": "Khách Hàng 2",
+  "phone": "0123456780"
+}
+
+### Đăng nhập Customer
+# @name loginCustomer
+POST {{baseUrl}}/api/Auth/login
+Content-Type: application/json
+
+{
+  "email": "customer@example.com",
+  "password": "Password123"
+}
+
+### Lưu token từ phản hồi đăng nhập
+@customerToken = {{loginCustomer.response.body.data.token}}
+
+### Test API công khai
+GET {{baseUrl}}/api/TestAuth/public
+Accept: application/json
+
+### Test API được bảo vệ với token Customer
+GET {{baseUrl}}/api/TestAuth/protected
+Accept: application/json
+Authorization: Bearer {{customerToken}}
+
+### Test API chỉ dành cho Customer với token Customer
+GET {{baseUrl}}/api/TestAuth/customer-only
+Accept: application/json
+Authorization: Bearer {{customerToken}}

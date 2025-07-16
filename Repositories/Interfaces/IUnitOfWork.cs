@@ -1,0 +1,27 @@
+using System;
+using System.Threading.Tasks;
+using BusinessObjects.Models;
+
+namespace Repositories.Interfaces
+{
+    public interface IUnitOfWork : IDisposable
+    {
+        // Phương thức để truy xuất repository
+        IGenericRepository<T> Repository<T>() where T : class;
+        
+        // User Repository
+        IUserRepository UserRepository { get; }
+        
+        // Phương thức lưu các thay đổi vào database
+        Task<int> SaveChangesAsync();
+        
+        // Bắt đầu transaction
+        Task BeginTransactionAsync();
+        
+        // Commit transaction
+        Task CommitTransactionAsync();
+        
+        // Rollback transaction
+        Task RollbackTransactionAsync();
+    }
+} 
