@@ -17,8 +17,7 @@ public class PingPongController : ControllerBase
         return Ok(new ApiResponse{
             Code = 200,
             Status = true,
-            Message = "Skibidi bop bop",
-            Data = "Pong "
+            Message = "Skibidi bop bop"
         });
     }
 } 

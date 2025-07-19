@@ -34,7 +34,7 @@ namespace Services.Implements
                 Password = BC.HashPassword(request.Password), // Hash password
                 Name = request.Name,
                 Phone = request.Phone,
-                Role = UserRole.Customer, // Sử dụng enum
+                Role = UserRole.Customer,
                 Createdat = DateTime.Now,
                 Updatedat = DateTime.Now
             };

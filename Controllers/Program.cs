@@ -25,6 +25,9 @@ var jwtSettings = builder.Configuration.GetSection("JwtSettings").Get<JwtSetting
 // Cấu hình SmtpSettings từ appsettings.json
 builder.Services.Configure<SmtpSettings>(builder.Configuration.GetSection("SmtpSettings"));
 
+// Cấu hình GoogleCalendarSettings từ appsettings.json
+builder.Services.Configure<GoogleCalendarSettings>(builder.Configuration.GetSection("GoogleCalendarSettings"));
+
 // Cấu hình JWT Authentication - Đơn giản hóa
 builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
     .AddJwtBearer(options =>
@@ -90,6 +93,7 @@ builder.Services.AddScoped<IUserRepository, UserRepository>();
 builder.Services.AddScoped<IUserService, UserService>();
 builder.Services.AddScoped<IAuthService, AuthService>();
 builder.Services.AddScoped<IEmailService, SmtpEmailService>();
+builder.Services.AddScoped<IGoogleMeetService, GoogleMeetService>();
 
 // Đảm bảo thư mục EmailTemplates tồn tại
 var emailTemplateDir = Path.Combine(builder.Environment.ContentRootPath, "EmailTemplates");
