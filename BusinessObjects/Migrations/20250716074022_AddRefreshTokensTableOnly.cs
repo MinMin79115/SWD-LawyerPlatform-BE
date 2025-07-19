@@ -8,19 +8,11 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace BusinessObjects.Migrations
 {
     /// <inheritdoc />
-    public partial class AddRefreshTokensTable : Migration
+    public partial class AddRefreshTokensTableOnly : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
         {
-            migrationBuilder.AlterDatabase()
-                .Annotation("Npgsql:Enum:appointment_status", "Pending,Confirmed,Completed,Cancelled")
-                .Annotation("Npgsql:Enum:duration_type", "30Minutes,60Minutes,90Minutes,120Minutes")
-                .Annotation("Npgsql:Enum:form_status", "Draft,Submitted,Processing,Completed,Cancelled")
-                .Annotation("Npgsql:Enum:law_type", "RealEstateLaw,CriminalLaw,LaborLaw,EnterpriseLaw")
-                .Annotation("Npgsql:Enum:payment_status", "Pending,Completed,Failed,Refunded")
-                .Annotation("Npgsql:Enum:service_type", "BookConsultant,LawForm")
-                .Annotation("Npgsql:Enum:user_role", "Customer,Lawyer,Admin");
 
             migrationBuilder.CreateTable(
                 name: "durations",

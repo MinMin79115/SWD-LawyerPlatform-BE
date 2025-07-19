@@ -24,10 +24,14 @@ namespace Repositories.Implements
             return await _dbSet.AnyAsync(u => u.Email == email);
         }
 
-        public async Task<bool> IsLawyerAsync(int userId)
+        public async Task<string> GetUserRoleAsync(int userId)
         {
-            // Kiểm tra xem user có phải là lawyer không bằng cách kiểm tra trong bảng Lawyer
-            return await _context.Set<Lawyer>().AnyAsync(l => l.Userid == userId);
+            var user = await _dbSet.FindAsync(userId);
+            if (user == null)
+                return "Customer";
+            
+            // Chuyển đổi từ enum sang string
+            return user.Role.ToString();
         }
     }
 } 

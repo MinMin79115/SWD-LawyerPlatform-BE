@@ -7,6 +7,6 @@ namespace Repositories.Interfaces
     {
         Task<User> GetByEmailAsync(string email);
         Task<bool> IsEmailExistAsync(string email);
-        Task<bool> IsLawyerAsync(int userId);
+        Task<string> GetUserRoleAsync(int userId);
     }
 } 

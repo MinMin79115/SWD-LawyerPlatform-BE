@@ -16,6 +16,8 @@ public partial class Appointment
     public TimeOnly Scheduletime { get; set; }
 
     public DateOnly Scheduledate { get; set; }
+    
+    public AppointmentStatus Status { get; set; } = AppointmentStatus.Pending;
 
     public string? Meetinglink { get; set; }
 

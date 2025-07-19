@@ -46,20 +46,12 @@ namespace Services.Implements
             // Lấy thông tin user
             var user = await _userService.GetUserByEmailAsync(request.Email);
 
-            // Lấy role của user bằng UserRepository
-            string role = "Customer"; // Mặc định là Customer
-            
-            // Kiểm tra nếu là Lawyer
-            var isLawyer = await _unitOfWork.UserRepository.IsLawyerAsync(user.Userid);
-            
-            if (isLawyer)
-            {
-                role = "Lawyer";
-            }
+            // Lấy role của user từ thuộc tính Role
+            string role = user.Role.ToString();
             
             // Tạo JWT token và refresh token
             var jwtId = Guid.NewGuid().ToString();
-            authResult.Token = await GenerateJwtTokenWithJtiAsync(user.Email, role, user.Userid, jwtId);
+            authResult.Token = GenerateJwtToken(user.Email, role, user.Userid, jwtId);
             
             // Tạo refresh token và lưu vào DB
             var refreshToken = GenerateRefreshToken(jwtId, user.Userid);
@@ -125,7 +117,7 @@ namespace Services.Implements
             }
 
             // Tìm refresh token trong DB
-            var refreshToken = await _unitOfWork.Repository<RefreshToken>().FirstOrDefaultAsync(
+            var refreshToken = await _unitOfWork.Repository<RefreshToken>().GetFirstOrDefaultAsync(
                 x => x.Token == tokenRequest.RefreshToken && x.JwtId == jti && x.UserId == userId);
 
             if (refreshToken == null)
@@ -155,17 +147,21 @@ namespace Services.Implements
             refreshToken.IsUsed = true;
             _unitOfWork.Repository<RefreshToken>().Update(refreshToken);
             
-            // Lấy role của người dùng
-            string role = "Customer"; // Mặc định là Customer
-            var isLawyer = await _unitOfWork.UserRepository.IsLawyerAsync(userId);
-            if (isLawyer)
+            // Lấy user để lấy role
+            var user = await _unitOfWork.Repository<User>().GetByIdAsync(userId);
+            if (user == null)
             {
-                role = "Lawyer";
+                authResult.Success = false;
+                authResult.Errors.Add("Không tìm thấy người dùng");
+                return authResult;
             }
+            
+            // Lấy role từ thuộc tính Role
+            string role = user.Role.ToString();
 
             // Tạo JWT token mới và refresh token mới
             var newJwtId = Guid.NewGuid().ToString();
-            authResult.Token = await GenerateJwtTokenWithJtiAsync(email, role, userId, newJwtId);
+            authResult.Token = GenerateJwtToken(email, role, userId, newJwtId);
             
             // Tạo refresh token mới và lưu vào DB
             var newRefreshToken = GenerateRefreshToken(newJwtId, userId);
@@ -179,13 +175,7 @@ namespace Services.Implements
             return authResult;
         }
 
-        public async Task<string> GenerateJwtToken(string email, string role, int userId)
-        {
-            var jwtId = Guid.NewGuid().ToString();
-            return await GenerateJwtTokenWithJtiAsync(email, role, userId, jwtId);
-        }
-        
-        private async Task<string> GenerateJwtTokenWithJtiAsync(string email, string role, int userId, string jwtId)
+        public string GenerateJwtToken(string email, string role, int userId, string jwtId)
         {
             var claims = new List<Claim>
             {
