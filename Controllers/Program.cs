@@ -25,6 +25,9 @@ var jwtSettings = builder.Configuration.GetSection("JwtSettings").Get<JwtSetting
 // Cấu hình SmtpSettings từ appsettings.json
 builder.Services.Configure<SmtpSettings>(builder.Configuration.GetSection("SmtpSettings"));
 
+// Cấu hình GoogleMeetSettings từ appsettings.json
+builder.Services.Configure<GoogleMeetSettings>(builder.Configuration.GetSection("GoogleMeet"));
+
 // Cấu hình JWT Authentication - Đơn giản hóa
 builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
     .AddJwtBearer(options =>
@@ -77,6 +80,16 @@ builder.Services.AddSwaggerGen(c =>
     });
 });
 
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy("AllowAllOrigins",
+        builder =>
+        {
+            builder.AllowAnyOrigin( "http://localhost:5173", "http://localhost:3000")
+                .AllowAnyHeader()
+                .AllowAnyMethod();
+        });
+
 // Đăng ký DbContext
 builder.Services.AddDbContext<ApplicationDbContext>(options =>
     options.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection")));
@@ -116,6 +129,8 @@ app.UseHttpsRedirection();
 // Thêm middleware Authentication và Authorization
 app.UseAuthentication();
 app.UseAuthorization();
+
+app.UseCors("AllowAllOrigins");
 
 app.MapControllers();
 
