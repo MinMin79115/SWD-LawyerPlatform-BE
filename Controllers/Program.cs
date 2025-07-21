@@ -89,6 +89,7 @@ builder.Services.AddCors(options =>
                 .AllowAnyHeader()
                 .AllowAnyMethod();
         });
+});
 
 // Đăng ký DbContext
 builder.Services.AddDbContext<ApplicationDbContext>(options =>
