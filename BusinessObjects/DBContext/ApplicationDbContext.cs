@@ -167,7 +167,7 @@ public partial class ApplicationDbContext : DbContext
             entity.ToTable("durations");
 
             entity.Property(e => e.Durationid).HasColumnName("durationid");
-            entity.Property(e => e.Duration)
+            entity.Property(e => e.Value)
                 .HasColumnName("duration")
                 .HasColumnType("duration_type")
                 .HasConversion<string>();
