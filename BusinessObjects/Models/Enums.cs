@@ -1,34 +1,36 @@
 namespace BusinessObjects.Models
 {
-    // Đã được định nghĩa trong User.cs
-    // public enum UserRole
+    public enum UserRole
+    {
+        Customer,
+        Lawyer,
+        Admin
+    }
+
+    // Đã chuyển sang sử dụng kiểu string
+    // public enum ServiceType
     // {
-    //     Customer,
-    //     Lawyer,
-    //     Admin
+    //     Lawform,
+    //     Appointment
     // }
 
-    public enum ServiceType
-    {
-        BookConsultant,
-        LawForm
-    }
+    // Đã chuyển sang sử dụng kiểu string
+    // public enum LawType
+    // {
+    //     RealEstateLaw,
+    //     CriminalLaw,
+    //     LaborLaw,
+    //     EnterpriseLaw
+    // }
 
-    public enum LawType
-    {
-        RealEstateLaw,
-        CriminalLaw,
-        LaborLaw,
-        EnterpriseLaw
-    }
-
-    public enum DurationType
-    {
-        Minutes30,
-        Minutes60,
-        Minutes90,
-        Minutes120
-    }
+    // Đã chuyển sang sử dụng kiểu int
+    // public enum DurationType
+    // {
+    //     Minutes30 = 30,
+    //     Minutes60 = 60,
+    //     Minutes90 = 90,
+    //     Minutes120 = 120
+    // }
 
     public enum AppointmentStatus
     {

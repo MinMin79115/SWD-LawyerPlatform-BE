@@ -7,7 +7,7 @@ public partial class Duration
 {
     public int Durationid { get; set; }
     
-    public DurationType Value { get; set; }
+    public int Value { get; set; }
 
     public virtual ICollection<Service> Services { get; set; } = new List<Service>();
 }
