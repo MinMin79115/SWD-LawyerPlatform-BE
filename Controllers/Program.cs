@@ -25,6 +25,9 @@ var jwtSettings = builder.Configuration.GetSection("JwtSettings").Get<JwtSetting
 // Cấu hình SmtpSettings từ appsettings.json
 builder.Services.Configure<SmtpSettings>(builder.Configuration.GetSection("SmtpSettings"));
 
+// Cấu hình MeetingSettings từ appsettings.json
+builder.Services.Configure<MeetingSettings>(builder.Configuration.GetSection("MeetingSettings"));
+
 // Cấu hình JWT Authentication - Đơn giản hóa
 builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
     .AddJwtBearer(options =>

@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8" />
+    <title>Xác nhận đặt lịch tư vấn luật sư</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            line-height: 1.6;
+            color: #333;
+        }
+        .container {
+            max-width: 600px;
+            margin: 0 auto;
+            padding: 20px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+        }
+        .header {
+            background-color: #4A86E8;
+            color: white;
+            padding: 10px 20px;
+            text-align: center;
+            border-radius: 5px 5px 0 0;
+        }
+        .content {
+            padding: 20px;
+        }
+        .appointment-details {
+            background-color: #f9f9f9;
+            border: 1px solid #eee;
+            border-radius: 5px;
+            padding: 15px;
+            margin: 20px 0;
+        }
+        .appointment-item {
+            margin-bottom: 10px;
+            display: flex;
+        }
+        .appointment-label {
+            font-weight: bold;
+            width: 150px;
+        }
+        .appointment-value {
+            flex: 1;
+        }
+        .meeting-button {
+            display: inline-block;
+            background-color: #34A853;
+            color: white;
+            padding: 12px 24px;
+            text-decoration: none;
+            border-radius: 5px;
+            margin: 20px 0;
+            font-weight: bold;
+            text-align: center;
+        }
+        .footer {
+            background-color: #f5f5f5;
+            padding: 10px 20px;
+            text-align: center;
+            font-size: 12px;
+            border-radius: 0 0 5px 5px;
+        }
+        .note {
+            background-color: #FFF9E6;
+            border-left: 4px solid #FFCC00;
+            padding: 10px 15px;
+            margin: 20px 0;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>Xác nhận đặt lịch tư vấn</h1>
+        </div>
+        <div class="content">
+            <p>Kính gửi {{CustomerName}},</p>
+            
+            <p>Cảm ơn bạn đã đặt lịch tư vấn luật sư trên nền tảng Basico. Dưới đây là thông tin chi tiết về cuộc hẹn của bạn:</p>
+            
+            <div class="appointment-details">
+                <div class="appointment-item">
+                    <div class="appointment-label">Loại tư vấn:</div>
+                    <div class="appointment-value">{{ConsultationType}}</div>
+                </div>
+                
+                <div class="appointment-item">
+                    <div class="appointment-label">Ngày tư vấn:</div>
+                    <div class="appointment-value">{{AppointmentDate}}</div>
+                </div>
+                
+                <div class="appointment-item">
+                    <div class="appointment-label">Giờ tư vấn:</div>
+                    <div class="appointment-value">{{AppointmentTime}}</div>
+                </div>
+                
+                <div class="appointment-item">
+                    <div class="appointment-label">Thời lượng:</div>
+                    <div class="appointment-value">{{Duration}} phút</div>
+                </div>
+                
+                <div class="appointment-item">
+                    <div class="appointment-label">Phương thức tư vấn:</div>
+                    <div class="appointment-value">{{ConsultationMethod}}</div>
+                </div>
+                
+                <div class="appointment-item">
+                    <div class="appointment-label">Luật sư tư vấn:</div>
+                    <div class="appointment-value">{{LawyerName}}</div>
+                </div>
+                
+                <div class="appointment-item">
+                    <div class="appointment-label">Tổng chi phí:</div>
+                    <div class="appointment-value">{{TotalAmount}} VNĐ</div>
+                </div>
+            </div>
+
+            <p><strong>Link Google Meet cho cuộc họp trực tuyến:</strong></p>
+            <p style="text-align: center;">
+                <a href="{{MeetingLink}}" class="meeting-button" target="_blank">Tham gia cuộc họp</a>
+            </p>
+            <div class="note">
+                <p><strong>Lưu ý:</strong></p>
+                <ul>
+                    <li>Vui lòng tham gia đúng giờ để không bỏ lỡ thời gian tư vấn của bạn.</li>
+                    <li>Đảm bảo thiết bị của bạn có kết nối internet ổn định, micro và camera hoạt động tốt.</li>
+                    <li>Chuẩn bị sẵn các câu hỏi và tài liệu liên quan để cuộc tư vấn hiệu quả nhất.</li>
+                </ul>
+            </div>
+            
+            <p>Nếu bạn cần thay đổi hoặc hủy lịch hẹn, vui lòng liên hệ với chúng tôi ít nhất 24 giờ trước thời gian hẹn qua email hoặc số điện thoại hỗ trợ: <strong>1900 1234</strong>.</p>
+            
+            <p>Chúng tôi rất mong được hỗ trợ bạn giải quyết các vấn đề pháp lý.</p>
+            
+            <p>Trân trọng,<br>Đội ngũ Nền tảng Luật sư Basico</p>
+        </div>
+        <div class="footer">
+            <p>© 2025 Nền tảng Luật sư Basico. Tất cả các quyền được bảo lưu.</p>
+            <p>Địa chỉ: 123 Đường ABC, Quận XYZ, Thành phố HCM</p>
+            <p>Email: support@basicolawyerplatform.com | Hotline: 1900 1234</p>
+        </div>
+    </div>
+</body>
+</html>

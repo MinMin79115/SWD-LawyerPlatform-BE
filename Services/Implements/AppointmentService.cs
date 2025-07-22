@@ -4,9 +4,11 @@ using System.Linq;
 using System.Threading.Tasks;
 using BusinessObjects.Common;
 using BusinessObjects.DTO.Appointment;
+using BusinessObjects.DTO.Email;
 using BusinessObjects.Models;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
 using Repositories.Interfaces;
 using Services.Interfaces;
 
@@ -16,11 +18,22 @@ namespace Services.Implements
     {
         private readonly IUnitOfWork _unitOfWork;
         private readonly ILogger<AppointmentService> _logger;
+        private readonly IEmailService _emailService;
+        private readonly MeetingSettings _meetingSettings;
+        private readonly IUserService _userService;
 
-        public AppointmentService(IUnitOfWork unitOfWork, ILogger<AppointmentService> logger)
+        public AppointmentService(
+            IUnitOfWork unitOfWork, 
+            ILogger<AppointmentService> logger,
+            IEmailService emailService,
+            IOptions<MeetingSettings> meetingSettings,
+            IUserService userService)
         {
             _unitOfWork = unitOfWork;
             _logger = logger;
+            _emailService = emailService;
+            _meetingSettings = meetingSettings.Value;
+            _userService = userService;
         }
 
         public async Task<IEnumerable<TimeSlotDTO>> GetTimeSlotsAsync(DateOnly? date = null, int? lawyerId = null)
@@ -348,6 +361,43 @@ namespace Services.Implements
                         var user = await _unitOfWork.Repository<User>().GetByIdAsync(lawyer.Userid);
                         lawyerName = user?.Name;
                     }
+                }
+                
+                // Gửi email xác nhận đặt lịch
+                try
+                {
+                    // Lấy thông tin người dùng
+                    var user = await _unitOfWork.Repository<User>().GetByIdAsync(request.UserId);
+                    if (user != null)
+                    {
+                        // Tạo model cho email
+                        var emailModel = new AppointmentConfirmationEmailModel
+                        {
+                            CustomerName = user.Name,
+                            ConsultationType = lawtype.Lawtype1,
+                            AppointmentDate = scheduleDate.ToString("dd/MM/yyyy"),
+                            AppointmentTime = request.SelectedTime,
+                            Duration = request.Duration.ToString(),
+                            ConsultationMethod = request.Method == "online" ? "Trực tuyến" : "Trực tiếp",
+                            LawyerName = lawyerName ?? "Chưa xác định",
+                            TotalAmount = totalAmount.ToString("N0"),
+                            IsOnlineConsultation = request.Method == "online",
+                            MeetingLink = _meetingSettings.GoogleMeetUrl
+                        };
+
+                        // Gửi email
+                        await _emailService.SendEmailWithTemplateAsync(
+                            user.Email,
+                            "Xác nhận đặt lịch tư vấn luật sư - Nền tảng Basico",
+                            "AppointmentConfirmation",
+                            emailModel
+                        );
+                    }
+                }
+                catch (Exception ex)
+                {
+                    // Log lỗi nhưng không ảnh hưởng đến quá trình đặt lịch
+                    _logger.LogError(ex, "Không thể gửi email xác nhận đặt lịch cho userId {UserId}", request.UserId);
                 }
                 
                 return new AppointmentResponseDTO
