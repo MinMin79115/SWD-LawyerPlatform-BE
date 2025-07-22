@@ -7,6 +7,10 @@ namespace BusinessObjects.DBContext;
 
 public partial class ApplicationDbContext : DbContext
 {
+    public ApplicationDbContext()
+    {
+    }
+
     public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options)
         : base(options)
     {
@@ -29,6 +33,8 @@ public partial class ApplicationDbContext : DbContext
     public virtual DbSet<Package> Packages { get; set; }
 
     public virtual DbSet<Payment> Payments { get; set; }
+    
+    public virtual DbSet<RefreshToken> RefreshTokens { get; set; }
 
     public virtual DbSet<Service> Services { get; set; }
 
@@ -37,6 +43,10 @@ public partial class ApplicationDbContext : DbContext
     public virtual DbSet<User> Users { get; set; }
 
     public virtual DbSet<Usercredit> Usercredits { get; set; }
+
+    protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
+#warning To protect potentially sensitive information in your connection string, you should move it out of source code. You can avoid scaffolding the connection string by using the Name= syntax to read it from configuration - see https://go.microsoft.com/fwlink/?linkid=2131148. For more guidance on storing connection strings, see https://go.microsoft.com/fwlink/?LinkId=723263.
+        => optionsBuilder.UseNpgsql("Host=localhost;Database=LawyerPlatformDB;Username=postgres;Password=791156");
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -153,8 +163,6 @@ public partial class ApplicationDbContext : DbContext
 
             entity.ToTable("durations");
 
-            entity.HasIndex(e => e.Value, "durations_value_key").IsUnique();
-
             entity.Property(e => e.Durationid).HasColumnName("durationid");
             entity.Property(e => e.Value).HasColumnName("value");
         });
@@ -203,33 +211,47 @@ public partial class ApplicationDbContext : DbContext
                 .HasPrecision(10, 2)
                 .HasDefaultValueSql("0.00")
                 .HasColumnName("price");
-            entity.Property(e => e.Servicestypeid).HasColumnName("servicestypeid");
+            entity.Property(e => e.Servicestypename).HasColumnName("servicestypename");
             entity.Property(e => e.Updatedat)
                 .HasDefaultValueSql("CURRENT_TIMESTAMP")
                 .HasColumnType("timestamp without time zone")
                 .HasColumnName("updatedat");
 
-            entity.HasOne(d => d.Lawtype).WithMany(p => p.Lawforms)
+            entity.HasOne(d => d.Lawtype).WithMany()
                 .HasForeignKey(d => d.Lawtypeid)
                 .OnDelete(DeleteBehavior.Cascade)
                 .HasConstraintName("lawform_lawtypeid_fkey");
 
-            entity.HasOne(d => d.Servicestype).WithMany(p => p.Lawforms)
-                .HasForeignKey(d => d.Servicestypeid)
+            entity.HasOne(d => d.Servicestype).WithMany()
+                .HasForeignKey(d => d.Servicestypename)
                 .OnDelete(DeleteBehavior.Cascade)
-                .HasConstraintName("lawform_servicestypeid_fkey");
+                .HasConstraintName("lawform_servicestypename_fkey");
         });
 
         modelBuilder.Entity<Lawtype>(entity =>
         {
-            entity.HasKey(e => e.Lawtypeid).HasName("lawtypes_pkey");
+            entity.HasKey(e => e.LawTypeID).HasName("lawtypes_pkey");
 
             entity.ToTable("lawtypes");
 
-            entity.HasIndex(e => e.Lawtype1, "lawtypes_lawtype_key").IsUnique();
-
-            entity.Property(e => e.Lawtypeid).HasColumnName("lawtypeid");
-            entity.Property(e => e.Lawtype1).HasColumnName("lawtype");
+            entity.Property(e => e.LawTypeID)
+                .HasColumnName("lawtypeid");
+            entity.Property(e => e.LawType)
+                .HasColumnName("lawtype");
+            entity.Property(e => e.Description)
+                .HasColumnName("description");
+            entity.Property(e => e.Createdat)
+                .HasDefaultValueSql("CURRENT_TIMESTAMP")
+                .HasColumnType("timestamp without time zone")
+                .HasColumnName("createdat");
+            entity.Property(e => e.Updatedat)
+                .HasDefaultValueSql("CURRENT_TIMESTAMP")
+                .HasColumnType("timestamp without time zone")
+                .HasColumnName("updatedat");
+                
+            entity.HasMany(d => d.Lawforms)
+                .WithOne(p => p.Lawtype)
+                .HasForeignKey(p => p.Lawtypeid);
         });
 
         modelBuilder.Entity<Lawyer>(entity =>
@@ -366,6 +388,39 @@ public partial class ApplicationDbContext : DbContext
                 .HasConstraintName("payment_userid_fkey");
         });
 
+        modelBuilder.Entity<RefreshToken>(entity =>
+        {
+            entity.HasKey(e => e.Id).HasName("refreshtokens_pkey");
+
+            entity.ToTable("refreshtokens");
+
+            entity.HasIndex(e => e.Token).IsUnique();
+            entity.HasIndex(e => e.UserId);
+
+            entity.Property(e => e.Id).HasColumnName("id");
+            entity.Property(e => e.Token)
+                .HasMaxLength(500)
+                .HasColumnName("token");
+            entity.Property(e => e.JwtId)
+                .HasMaxLength(500)
+                .HasColumnName("jwtid");
+            entity.Property(e => e.IsUsed).HasColumnName("isused");
+            entity.Property(e => e.IsRevoked).HasColumnName("isrevoked");
+            entity.Property(e => e.CreatedAt)
+                .HasDefaultValueSql("CURRENT_TIMESTAMP")
+                .HasColumnType("timestamp without time zone")
+                .HasColumnName("createdat");
+            entity.Property(e => e.ExpiryDate)
+                .HasColumnType("timestamp without time zone")
+                .HasColumnName("expirydate");
+            entity.Property(e => e.UserId).HasColumnName("userid");
+
+            entity.HasOne(d => d.User).WithMany()
+                .HasForeignKey(d => d.UserId)
+                .OnDelete(DeleteBehavior.Cascade)
+                .HasConstraintName("refreshtokens_userid_fkey");
+        });
+
         modelBuilder.Entity<Service>(entity =>
         {
             entity.HasKey(e => e.Serviceid).HasName("services_pkey");
@@ -373,6 +428,11 @@ public partial class ApplicationDbContext : DbContext
             entity.ToTable("services");
 
             entity.Property(e => e.Serviceid).HasColumnName("serviceid");
+            entity.Property(e => e.Name)
+                .HasMaxLength(255)
+                .HasColumnName("name");
+            entity.Property(e => e.Description)
+                .HasColumnName("description");
             entity.Property(e => e.Createdat)
                 .HasDefaultValueSql("CURRENT_TIMESTAMP")
                 .HasColumnType("timestamp without time zone")
@@ -384,6 +444,7 @@ public partial class ApplicationDbContext : DbContext
                 .HasDefaultValueSql("0.00")
                 .HasColumnName("price");
             entity.Property(e => e.Servicestypeid).HasColumnName("servicestypeid");
+            entity.Property(e => e.Packageid).HasColumnName("packageid");
             entity.Property(e => e.Updatedat)
                 .HasDefaultValueSql("CURRENT_TIMESTAMP")
                 .HasColumnType("timestamp without time zone")
@@ -398,8 +459,13 @@ public partial class ApplicationDbContext : DbContext
                 .HasForeignKey(d => d.Lawtypeid)
                 .OnDelete(DeleteBehavior.Cascade)
                 .HasConstraintName("services_lawtypeid_fkey");
+                
+            entity.HasOne(d => d.Package).WithMany(p => p.Services)
+                .HasForeignKey(d => d.Packageid)
+                .OnDelete(DeleteBehavior.SetNull)
+                .HasConstraintName("services_packageid_fkey");
 
-            entity.HasOne(d => d.Servicestype).WithMany(p => p.Services)
+            entity.HasOne(d => d.ServicestypeNameNavigation).WithMany(p => p.Services)
                 .HasForeignKey(d => d.Servicestypeid)
                 .OnDelete(DeleteBehavior.Cascade)
                 .HasConstraintName("services_servicestypeid_fkey");
@@ -407,14 +473,24 @@ public partial class ApplicationDbContext : DbContext
 
         modelBuilder.Entity<Servicestype>(entity =>
         {
-            entity.HasKey(e => e.Servicetypeid).HasName("servicestypes_pkey");
+            entity.HasKey(e => e.ServiceTypeID).HasName("servicestypes_pkey");
 
             entity.ToTable("servicestypes");
 
-            entity.HasIndex(e => e.Servicestype1, "servicestypes_servicestype_key").IsUnique();
-
-            entity.Property(e => e.Servicetypeid).HasColumnName("servicetypeid");
-            entity.Property(e => e.Servicestype1).HasColumnName("servicestype");
+            entity.Property(e => e.ServiceTypeID)
+                .HasColumnName("servicetypeid");
+            entity.Property(e => e.ServicesType)
+                .HasColumnName("servicestype");
+            entity.Property(e => e.Description)
+                .HasColumnName("description");
+            entity.Property(e => e.Createdat)
+                .HasDefaultValueSql("CURRENT_TIMESTAMP")
+                .HasColumnType("timestamp without time zone")
+                .HasColumnName("createdat");
+            entity.Property(e => e.Updatedat)
+                .HasDefaultValueSql("CURRENT_TIMESTAMP")
+                .HasColumnType("timestamp without time zone")
+                .HasColumnName("updatedat");
         });
 
         modelBuilder.Entity<User>(entity =>
