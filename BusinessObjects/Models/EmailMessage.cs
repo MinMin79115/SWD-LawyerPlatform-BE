@@ -5,22 +5,17 @@ namespace BusinessObjects.Models;
 
 public partial class EmailMessage
 {
+    public int Id { get; set; }
+    
     public string To { get; set; } = null!;
     
     public string Subject { get; set; } = null!;
     
-    public string Body { get; set; } = null!;
+    public string Content { get; set; } = null!;
     
-    public bool IsHtml { get; set; } = true;
+    public string? AttachmentPath { get; set; }
     
-    public List<EmailAttachment>? Attachments { get; set; }
-}
-
-public class EmailAttachment
-{
-    public byte[] Content { get; set; } = null!;
+    public bool IsSent { get; set; }
     
-    public string FileName { get; set; } = null!;
-    
-    public string ContentType { get; set; } = null!;
+    public DateTime? DateSent { get; set; }
 }

@@ -104,19 +104,15 @@ namespace Controllers.Controllers
             }
         }
 
-        [Authorize]
         [HttpPost("submit")]
         public async Task<IActionResult> SubmitAppointment(AppointmentRequestDTO request)
         {
             try
             {
-                var userIdClaim = User.FindFirst(ClaimTypes.NameIdentifier);
-                if (userIdClaim == null || !int.TryParse(userIdClaim.Value, out int userId))
-                {
-                    return Unauthorized(new ApiResponse { Status = false, Message = "Invalid user credentials." });
-                }
+                // UserId đã nằm trong request, không cần truyền riêng nữa
+                System.Diagnostics.Debug.WriteLine($"Using userId from request: {request.UserId}");
 
-                var response = await _appointmentService.SubmitAppointmentAsync(request, userId);
+                var response = await _appointmentService.SubmitAppointmentAsync(request);
                 
                 if (!response.Success)
                 {
@@ -131,17 +127,13 @@ namespace Controllers.Controllers
             }
         }
 
-        [Authorize]
+        // Đã bỏ Authorize
         [HttpGet("user-appointments")]
-        public async Task<IActionResult> GetUserAppointments()
+        public async Task<IActionResult> GetUserAppointments([FromQuery] int userId)
         {
             try
             {
-                var userIdClaim = User.FindFirst(ClaimTypes.NameIdentifier);
-                if (userIdClaim == null || !int.TryParse(userIdClaim.Value, out int userId))
-                {
-                    return Unauthorized(new ApiResponse { Status = false, Message = "Invalid user credentials." });
-                }
+                // Sử dụng userId được truyền từ query parameter thay vì từ token
 
                 var appointments = await _appointmentService.GetUserAppointmentsAsync(userId);
                 return Ok(appointments);

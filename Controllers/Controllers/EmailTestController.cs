@@ -33,8 +33,9 @@ namespace Controllers.Controllers
                 {
                     To = to,
                     Subject = "Email Test từ Lawyer Platform",
-                    Body = "<h1>Xin chào!</h1><p>Đây là email test từ API Lawyer Platform.</p>",
-                    IsHtml = true
+                    Content = "<h1>Xin chào!</h1><p>Đây là email test từ API Lawyer Platform.</p>",
+                    IsSent = false,
+                    DateSent = System.DateTime.Now
                 };
 
                 await _emailService.SendEmailAsync(emailMessage);

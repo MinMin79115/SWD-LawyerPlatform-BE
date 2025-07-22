@@ -58,18 +58,16 @@ namespace Services.Implements
         {
             try
             {
-                // Use direct SQL query with proper column names
-                var lawTypes = await _unitOfWork.Context.Lawtypes
-                    .FromSqlRaw(@"SELECT lawtypeid, lawtype, description, createdat, updatedat FROM lawtypes")
-                    .ToListAsync();
+                // Get all law types directly from the repository
+                var lawTypes = await _unitOfWork.Repository<Lawtype>().GetAllAsync();
                 
                 // Convert to ConsultationTypeDTO
                 var consultationTypes = lawTypes.Select(lt => new ConsultationTypeDTO
                 {
-                    Value = lt.Lawtype1,
-                    Label = lt.Lawtype1,
+                    Value = lt.Lawtypeid.ToString(), // Using ID as value
+                    Label = lt.Lawtype1,             // Using name as label
                     Description = $"Tư vấn về {lt.Lawtype1}",
-                    BasePrice = 500000 // Default price
+                    BasePrice = 500000               // Default price
                 }).ToList();
                 
                 return consultationTypes;
@@ -183,7 +181,7 @@ namespace Services.Implements
             }
         }
 
-        public async Task<AppointmentResponseDTO> SubmitAppointmentAsync(AppointmentRequestDTO request, int userId)
+        public async Task<AppointmentResponseDTO> SubmitAppointmentAsync(AppointmentRequestDTO request)
         {
             try
             {
@@ -226,7 +224,7 @@ namespace Services.Implements
                 // Create new appointment
                 var appointment = new Appointment
                 {
-                    Userid = userId,
+                    Userid = request.UserId,
                     Lawyerid = !string.IsNullOrEmpty(request.SelectedLawyer) ? int.Parse(request.SelectedLawyer) : null,
                     Scheduledate = scheduleDate,
                     Scheduletime = scheduleTime,
@@ -247,20 +245,33 @@ namespace Services.Implements
                     return null; // Handle error: law type not found
                 }
                 
+                // Tìm Duration phù hợp dựa trên giá trị thời lượng
+                var duration = await _unitOfWork.Repository<Duration>().GetFirstOrDefaultAsync(
+                    d => d.Value == request.Duration
+                );
+                
+                if (duration == null)
+                {
+                    // Nếu không tìm thấy Duration tương ứng, trả về lỗi
+                    throw new Exception($"Không tìm thấy Duration với giá trị {request.Duration}");
+                }
+                
                 // Find service using the IDs
                 var service = await _unitOfWork.Repository<Service>().GetFirstOrDefaultAsync(
                     s => s.Lawtypeid == lawtype.Lawtypeid && 
-                         s.Durationid == request.Duration
+                         s.Durationid == duration.Durationid
                 );
                 
                 if (service == null)
                 {
+                    // Đã tìm Duration ở trên rồi, không cần tìm lại hay kiểm tra lại nữa
+                    
                     // Create a new service entry if one doesn't exist
                     service = new Service
                     {
                         // Name and Description are not properties of Service model, we'll need to add them or use custom DTOs
                         Price = totalAmount,
-                        Durationid = request.Duration,
+                        Durationid = duration.Durationid,  // Sử dụng Durationid từ bản ghi Duration
                         Lawtypeid = lawtype.Lawtypeid,
                         Servicestypeid = 2, // Assuming 2 is the ID for Appointment service type
                         Createdat = DateTime.Now,

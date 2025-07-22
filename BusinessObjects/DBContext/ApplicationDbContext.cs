@@ -37,6 +37,10 @@ public partial class ApplicationDbContext : DbContext
     public virtual DbSet<User> Users { get; set; }
 
     public virtual DbSet<Usercredit> Usercredits { get; set; }
+    
+    public virtual DbSet<RefreshToken> RefreshTokens { get; set; }
+    
+    public virtual DbSet<EmailMessage> EmailMessages { get; set; }
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -487,6 +491,77 @@ public partial class ApplicationDbContext : DbContext
                 .HasForeignKey(d => d.Userid)
                 .OnDelete(DeleteBehavior.Cascade)
                 .HasConstraintName("usercredit_userid_fkey");
+        });
+        
+        modelBuilder.Entity<RefreshToken>(entity =>
+        {
+            entity.ToTable("refreshtokens");
+            
+            entity.Property(e => e.Id)
+                .HasColumnName("id")
+                .UseIdentityAlwaysColumn();
+                
+            entity.Property(e => e.Token)
+                .IsRequired()
+                .HasColumnName("token");
+                
+            entity.Property(e => e.JwtId)
+                .IsRequired()
+                .HasColumnName("jwtid");
+                
+            entity.Property(e => e.IsUsed)
+                .HasColumnName("isused");
+                
+            entity.Property(e => e.IsRevoked)
+                .HasColumnName("isrevoked");
+                
+            entity.Property(e => e.AddedDate)
+                .HasColumnName("addeddate")
+                .HasColumnType("timestamp without time zone");
+                
+            entity.Property(e => e.ExpiryDate)
+                .HasColumnName("expirydate")
+                .HasColumnType("timestamp without time zone");
+                
+            entity.Property(e => e.UserId)
+                .HasColumnName("userid");
+                
+            entity.HasOne(d => d.User)
+                .WithMany()
+                .HasForeignKey(d => d.UserId)
+                .OnDelete(DeleteBehavior.Cascade)
+                .HasConstraintName("refreshtoken_userid_fkey");
+        });
+        
+        modelBuilder.Entity<EmailMessage>(entity =>
+        {
+            entity.ToTable("emailmessages");
+            
+            entity.Property(e => e.Id)
+                .HasColumnName("id")
+                .UseIdentityAlwaysColumn();
+                
+            entity.Property(e => e.To)
+                .IsRequired()
+                .HasColumnName("to");
+                
+            entity.Property(e => e.Subject)
+                .IsRequired()
+                .HasColumnName("subject");
+                
+            entity.Property(e => e.Content)
+                .IsRequired()
+                .HasColumnName("content");
+                
+            entity.Property(e => e.AttachmentPath)
+                .HasColumnName("attachmentpath");
+                
+            entity.Property(e => e.IsSent)
+                .HasColumnName("issent");
+                
+            entity.Property(e => e.DateSent)
+                .HasColumnName("datesent")
+                .HasColumnType("timestamp without time zone");
         });
 
         OnModelCreatingPartial(modelBuilder);

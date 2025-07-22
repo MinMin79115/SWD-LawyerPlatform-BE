@@ -13,7 +13,7 @@ namespace Services.Interfaces
         Task<IEnumerable<DurationOptionDTO>> GetDurationOptionsAsync();
         Task<IEnumerable<ConsultationMethodDTO>> GetConsultationMethodsAsync();
         Task<PriceInfoDTO> CalculateConsultationPriceAsync(string consultationType, string duration, string method);
-        Task<AppointmentResponseDTO> SubmitAppointmentAsync(AppointmentRequestDTO request, int userId);
+        Task<AppointmentResponseDTO> SubmitAppointmentAsync(AppointmentRequestDTO request);
         Task<IEnumerable<AppointmentDetailsDTO>> GetUserAppointmentsAsync(int userId);
     }
 }

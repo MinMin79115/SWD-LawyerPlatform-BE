@@ -25,20 +25,16 @@ namespace Services.Implements
             {
                 From = new MailAddress(_smtpSettings.FromEmail, _smtpSettings.FromName),
                 Subject = emailMessage.Subject,
-                Body = emailMessage.Body,
-                IsBodyHtml = emailMessage.IsHtml
+                Body = emailMessage.Content,
+                IsBodyHtml = true // Default to HTML
             };
 
             message.To.Add(new MailAddress(emailMessage.To));
 
-            // Thêm các tập tin đính kèm (nếu có)
-            if (emailMessage.Attachments != null)
+            // Thêm tập tin đính kèm (nếu có)
+            if (!string.IsNullOrEmpty(emailMessage.AttachmentPath) && File.Exists(emailMessage.AttachmentPath))
             {
-                foreach (var attachment in emailMessage.Attachments)
-                {
-                    var memoryStream = new MemoryStream(attachment.Content);
-                    message.Attachments.Add(new Attachment(memoryStream, attachment.FileName, attachment.ContentType));
-                }
+                message.Attachments.Add(new Attachment(emailMessage.AttachmentPath));
             }
 
             using (var client = new SmtpClient(_smtpSettings.Server, _smtpSettings.Port))
@@ -76,8 +72,9 @@ namespace Services.Implements
             { 
                 To = to, 
                 Subject = subject, 
-                Body = body, 
-                IsHtml = true 
+                Content = body,
+                IsSent = false,
+                DateSent = DateTime.Now
             });
         }
     }

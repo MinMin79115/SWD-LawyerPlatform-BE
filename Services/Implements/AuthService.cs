@@ -182,7 +182,7 @@ namespace Services.Implements
                 new Claim(JwtRegisteredClaimNames.Sub, email),
                 new Claim(JwtRegisteredClaimNames.Jti, jwtId),
                 new Claim(JwtRegisteredClaimNames.Email, email),
-                new Claim("UserId", userId.ToString()),
+                new Claim(ClaimTypes.NameIdentifier, userId.ToString()),
                 new Claim(ClaimTypes.Role, role)
             };
 
@@ -208,7 +208,7 @@ namespace Services.Implements
                 Token = Guid.NewGuid().ToString(),
                 JwtId = jwtId,
                 UserId = userId,
-                CreatedAt = DateTime.Now,
+                AddedDate = DateTime.Now,
                 ExpiryDate = DateTime.Now.AddDays(_jwtSettings.RefreshTokenDurationInDays),
                 IsUsed = false,
                 IsRevoked = false

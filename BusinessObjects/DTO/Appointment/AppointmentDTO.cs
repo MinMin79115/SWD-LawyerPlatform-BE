@@ -49,6 +49,9 @@ namespace BusinessObjects.DTO.Appointment
     public class AppointmentRequestDTO
     {
         [Required]
+        public int UserId { get; set; }
+        
+        [Required]
         public string ConsultationType { get; set; } = string.Empty;
         
         [Required]
