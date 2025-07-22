@@ -145,7 +145,28 @@ namespace Services.Implements
                 decimal basePrice = 500000; // Default base price
                 
                 // Get base price from law type if available
-                var lawtype = await _unitOfWork.Repository<Lawtype>().GetFirstOrDefaultAsync(lt => lt.Lawtype1 == consultationType);
+                Lawtype lawtype;
+                // Try to parse as integer for ID-based lookup
+                if (int.TryParse(consultationType, out int lawtypeId))
+                {
+                    lawtype = await _unitOfWork.Repository<Lawtype>().GetFirstOrDefaultAsync(lt => lt.Lawtypeid == lawtypeId);
+                }
+                else
+                {
+                    // Fallback to name-based lookup
+                    lawtype = await _unitOfWork.Repository<Lawtype>().GetFirstOrDefaultAsync(lt => lt.Lawtype1 == consultationType);
+                }
+                
+                // Log if lawtype not found
+                if (lawtype == null)
+                {
+                    _logger.LogWarning($"Lawtype not found for consultationType: {consultationType}. Using default price.");
+                }
+                else 
+                {
+                    // If we have specific pricing in the future, we can adjust here
+                    // basePrice = lawtype.BasePrice ?? basePrice;
+                }
                 
                 // Apply duration multiplier
                 if (int.TryParse(duration, out int durationValue))
@@ -190,13 +211,21 @@ namespace Services.Implements
                 // Parse date and time
                 if (!DateOnly.TryParse(request.SelectedDate, out DateOnly scheduleDate))
                 {
-                    throw new ArgumentException("Invalid date format");
+                    return new AppointmentResponseDTO
+                    {
+                        Success = false,
+                        Message = "Định dạng ngày không hợp lệ. Vui lòng sử dụng định dạng yyyy-MM-dd."
+                    };
                 }
 
                 string[] timeParts = request.SelectedTime.Split(':');
                 if (timeParts.Length != 2 || !int.TryParse(timeParts[0], out int hour) || !int.TryParse(timeParts[1], out int minute))
                 {
-                    throw new ArgumentException("Invalid time format");
+                    return new AppointmentResponseDTO
+                    {
+                        Success = false,
+                        Message = "Định dạng giờ không hợp lệ. Vui lòng sử dụng định dạng HH:mm."
+                    };
                 }
                 
                 TimeOnly scheduleTime = new TimeOnly(hour, minute, 0);
@@ -219,7 +248,11 @@ namespace Services.Implements
                 
                 // Calculate price
                 var priceInfo = await CalculateConsultationPriceAsync(request.ConsultationType, request.Duration.ToString(), request.Method);
-                decimal totalAmount = decimal.Parse(priceInfo.Price.Replace(",", ""));
+                decimal totalAmount;
+                if (!decimal.TryParse(priceInfo?.Price?.Replace(",", ""), out totalAmount))
+                {
+                    totalAmount = 500000; // Giá mặc định nếu không parse được
+                }
                 
                 // Create new appointment
                 var appointment = new Appointment
@@ -228,21 +261,33 @@ namespace Services.Implements
                     Lawyerid = !string.IsNullOrEmpty(request.SelectedLawyer) ? int.Parse(request.SelectedLawyer) : null,
                     Scheduledate = scheduleDate,
                     Scheduletime = scheduleTime,
-                    // Status property is not available in Appointment model
-                    // We need to store status in another way or add it to the model
+                    Status = AppointmentStatus.Pending, // Thiết lập trạng thái ban đầu cho cuộc hẹn
+                    // Thuộc tính Description không tồn tại trong model Appointment
                     Totalamount = totalAmount,
                     Createdat = DateTime.Now,
                     Updatedat = DateTime.Now
                 };
                 
                 // Find lawtype ID first
-                var lawtype = await _unitOfWork.Repository<Lawtype>().GetFirstOrDefaultAsync(
-                    lt => lt.Lawtype1 == request.ConsultationType
-                );
+                Lawtype lawtype;
+                // Try to parse as integer for ID-based lookup
+                if (int.TryParse(request.ConsultationType, out int lawtypeId))
+                {
+                    lawtype = await _unitOfWork.Repository<Lawtype>().GetFirstOrDefaultAsync(lt => lt.Lawtypeid == lawtypeId);
+                }
+                else
+                {
+                    // Fallback to name-based lookup
+                    lawtype = await _unitOfWork.Repository<Lawtype>().GetFirstOrDefaultAsync(lt => lt.Lawtype1 == request.ConsultationType);
+                }
                 
                 if (lawtype == null)
                 {
-                    return null; // Handle error: law type not found
+                    return new AppointmentResponseDTO
+                    {
+                        Success = false,
+                        Message = $"Không tìm thấy loại tư vấn với mã {request.ConsultationType}. Vui lòng chọn loại tư vấn khác."
+                    };
                 }
                 
                 // Tìm Duration phù hợp dựa trên giá trị thời lượng
@@ -252,8 +297,12 @@ namespace Services.Implements
                 
                 if (duration == null)
                 {
-                    // Nếu không tìm thấy Duration tương ứng, trả về lỗi
-                    throw new Exception($"Không tìm thấy Duration với giá trị {request.Duration}");
+                    // Nếu không tìm thấy Duration tương ứng, trả về thông báo lỗi
+                    return new AppointmentResponseDTO
+                    {
+                        Success = false,
+                        Message = $"Không tìm thấy thời lượng {request.Duration} phút. Vui lòng chọn thời lượng khác."
+                    };
                 }
                 
                 // Find service using the IDs
@@ -359,7 +408,7 @@ namespace Services.Implements
                     Duration = a.Service?.Duration?.Value ?? 60,
                     Method = a.Meetinglink != null ? "Trực tuyến" : "Trực tiếp",
                     LawyerName = a.Lawyer?.User?.Name ?? "Chưa xác định",
-                    Status = "Pending", // Status property missing in Appointment model
+                    Status = a.Status.ToString(), // Sử dụng giá trị Status từ model Appointment
                     TotalAmount = a.Totalamount.ToString("N0") + " VNĐ"
                 }).ToList();
             }
