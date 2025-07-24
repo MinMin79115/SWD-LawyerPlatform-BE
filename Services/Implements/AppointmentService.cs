@@ -85,7 +85,7 @@ namespace Services.Implements
                 {
                     Code = 201,
                     Status = true,
-                    Message = "Đặt lịch hẹn thành công",
+                    Message = "Đặt lịch hẹn thành công. Vui lòng thanh toán để xác nhận lịch hẹn.",
                     Data = response
                 };
             }
@@ -423,7 +423,14 @@ namespace Services.Implements
                 MeetingLink = appointment.Meetinglink,
                 TotalAmount = appointment.Totalamount,
                 CreatedAt = appointment.Createdat,
-                UpdatedAt = appointment.Updatedat
+                UpdatedAt = appointment.Updatedat,
+                Payment = appointment.Payment != null ? new PaymentInfo
+                {
+                    PaymentId = appointment.Payment.Paymentid,
+                    Status = appointment.Payment.Status ?? "Pending",
+                    TransactionId = appointment.Payment.Transactionid,
+                    PaymentDate = appointment.Payment.Paymentdate
+                } : null
             };
         }
     }

@@ -21,6 +21,9 @@ namespace Repositories.Interfaces
         // Appointment Repository
         IAppointmentRepository AppointmentRepository { get; }
         
+        // Payment Repository
+        IPaymentRepository PaymentRepository { get; }
+        
         // Lawtype Repository
         IGenericRepository<Lawtype> LawtypeRepository { get; }
         

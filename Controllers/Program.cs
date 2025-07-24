@@ -28,6 +28,9 @@ builder.Services.Configure<SmtpSettings>(builder.Configuration.GetSection("SmtpS
 // Cấu hình MeetingSettings từ appsettings.json
 builder.Services.Configure<MeetingSettings>(builder.Configuration.GetSection("MeetingSettings"));
 
+// Cấu hình VnPaySettings từ appsettings.json
+builder.Services.Configure<VnPaySettings>(builder.Configuration.GetSection("VnPaySettings"));
+
 // Cấu hình JWT Authentication - Đơn giản hóa
 builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
     .AddJwtBearer(options =>
@@ -99,18 +102,17 @@ builder.Services.AddDbContext<ApplicationDbContext>(options =>
 builder.Services.AddScoped(typeof(IGenericRepository<>), typeof(GenericRepository<>));
 builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
 builder.Services.AddScoped<IUserRepository, UserRepository>();
-// Đã xóa builder.Services.AddScoped<IAppointmentRepository, AppointmentRepository>();
 builder.Services.AddScoped<ILawyerRepository, LawyerRepository>();
 builder.Services.AddScoped<IAppointmentRepository, AppointmentRepository>();
-// Đã xóa builder.Services.AddScoped<IServiceRepository, ServiceRepository>();
+builder.Services.AddScoped<IPaymentRepository, PaymentRepository>();
 
 // Đăng ký Services
 builder.Services.AddScoped<IUserService, UserService>();
 builder.Services.AddScoped<IAuthService, AuthService>();
 builder.Services.AddScoped<IEmailService, SmtpEmailService>();
-// Đã xóa builder.Services.AddScoped<IAppointmentService, AppointmentService>();
 builder.Services.AddScoped<ILawyerService, LawyerService>();
 builder.Services.AddScoped<IAppointmentService, AppointmentService>();
+builder.Services.AddScoped<IVnPayService, VnPayService>();
 
 // Đảm bảo thư mục EmailTemplates tồn tại
 var emailTemplateDir = Path.Combine(builder.Environment.ContentRootPath, "EmailTemplates");

@@ -19,7 +19,7 @@ namespace Repositories.Implements
         private IUserRepository _userRepository;
         private ILawyerRepository _lawyerRepository;
         private IAppointmentRepository _appointmentRepository;
-        // Đã xóa private IServiceRepository _serviceRepository;
+        private IPaymentRepository _paymentRepository;
 
         public UnitOfWork(ApplicationDbContext context)
         {
@@ -33,6 +33,8 @@ namespace Repositories.Implements
         public ILawyerRepository LawyerRepository => _lawyerRepository ??= new LawyerRepository(_context);
         
         public IAppointmentRepository AppointmentRepository => _appointmentRepository ??= new AppointmentRepository(_context);
+        
+        public IPaymentRepository PaymentRepository => _paymentRepository ??= new PaymentRepository(_context);
         
         public IGenericRepository<Lawtype> LawtypeRepository => Repository<Lawtype>();
         

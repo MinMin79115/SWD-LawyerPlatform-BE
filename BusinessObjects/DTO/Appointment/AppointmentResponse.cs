@@ -17,5 +17,17 @@ namespace BusinessObjects.DTO.Appointment
         public decimal TotalAmount { get; set; }
         public DateTime? CreatedAt { get; set; }
         public DateTime? UpdatedAt { get; set; }
+        
+        // Payment Information
+        public PaymentInfo? Payment { get; set; }
+    }
+    
+    public class PaymentInfo
+    {
+        public int? PaymentId { get; set; }
+        public string Status { get; set; } = null!;
+        public string? TransactionId { get; set; }
+        public DateTime? PaymentDate { get; set; }
+        public bool RequiresPayment => PaymentId == null || Status == "Pending";
     }
 }
