@@ -88,9 +88,11 @@ builder.Services.AddCors(options =>
     options.AddPolicy("AllowAllOrigins",
         builder =>
         {
-            builder.WithOrigins("http://localhost:5173", "http://localhost:3000")
+            builder.WithOrigins("http://localhost:5173", "https://localhost:5173", 
+                               "http://localhost:3000", "https://localhost:3000")
                 .AllowAnyHeader()
-                .AllowAnyMethod();
+                .AllowAnyMethod()
+                .AllowCredentials(); // Cho phép gửi cookies và credentials
         });
 });
 
@@ -136,11 +138,11 @@ if (app.Environment.IsDevelopment())
 
 app.UseHttpsRedirection();
 
+app.UseCors("AllowAllOrigins");
+
 // Thêm middleware Authentication và Authorization
 app.UseAuthentication();
 app.UseAuthorization();
-
-app.UseCors("AllowAllOrigins");
 
 app.MapControllers();
 
