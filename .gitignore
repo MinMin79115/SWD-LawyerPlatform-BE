@@ -85,3 +85,4 @@ node_modules/
 *.jfm
 .DS_Store
 Thumbs.db
+.cursorrules
