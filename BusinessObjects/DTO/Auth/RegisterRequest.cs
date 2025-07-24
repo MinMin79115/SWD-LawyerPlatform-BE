@@ -20,5 +20,7 @@ namespace BusinessObjects.DTO.Auth
         public string Name { get; set; }
 
         public string? Phone { get; set; }
+        
+        public string Role { get; set; } = "Customer"; // Mặc định là Customer
     }
 } 

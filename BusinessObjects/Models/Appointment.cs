@@ -17,11 +17,11 @@ public partial class Appointment
 
     public DateOnly Scheduledate { get; set; }
 
+    public string? Status { get; set; }
+
     public string? Meetinglink { get; set; }
 
     public decimal Totalamount { get; set; }
-
-    public AppointmentStatus Status { get; set; }
 
     public DateTime? Createdat { get; set; }
 

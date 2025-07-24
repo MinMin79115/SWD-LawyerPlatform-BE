@@ -19,7 +19,7 @@ public partial class Payment
 
     public string? Transactionid { get; set; }
 
-    public PaymentStatus Status { get; set; }
+    public string? Status { get; set; }
 
     public DateTime? Paymentdate { get; set; }
 

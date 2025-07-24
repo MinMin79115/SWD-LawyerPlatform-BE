@@ -15,13 +15,13 @@ public partial class User
 
     public string? Phone { get; set; }
 
+    public string Role { get; set; } = null!;
+
     public string? Avatar { get; set; }
 
     public DateTime? Createdat { get; set; }
 
     public DateTime? Updatedat { get; set; }
-
-    public BusinessObjects.Models.UserRole Role { get; set; }
 
     public virtual ICollection<Appointment> Appointments { get; set; } = new List<Appointment>();
 

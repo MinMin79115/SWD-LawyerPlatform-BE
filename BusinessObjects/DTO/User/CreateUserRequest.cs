@@ -1,4 +1,3 @@
-using BusinessObjects.Models;
 using System.ComponentModel.DataAnnotations;
 
 namespace BusinessObjects.DTO.User
@@ -16,6 +15,6 @@ namespace BusinessObjects.DTO.User
         
         public string? Phone { get; set; }
         public string? Avatar { get; set; }
-        public UserRole Role { get; set; } = UserRole.Customer;
+        public string Role { get; set; }
     }
 }

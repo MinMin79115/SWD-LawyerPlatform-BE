@@ -1,8 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
-using BusinessObjects.Models;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Configuration;
+using BusinessObjects.Models;
 
 namespace BusinessObjects.DBContext;
 
@@ -38,7 +37,8 @@ public partial class ApplicationDbContext : DbContext
     public virtual DbSet<User> Users { get; set; }
 
     public virtual DbSet<Usercredit> Usercredits { get; set; }
-    public static string GetConnectionString(string connectionStringName)
+
+//     public static string GetConnectionString(string connectionStringName)
 {
     var config = new ConfigurationBuilder()
         .SetBasePath(AppDomain.CurrentDomain.BaseDirectory)
@@ -51,31 +51,13 @@ public partial class ApplicationDbContext : DbContext
 
 protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
     => optionsBuilder.UseNpgsql(GetConnectionString("DefaultConnection")).UseQueryTrackingBehavior(QueryTrackingBehavior.NoTracking);
-
-//     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
-// #warning To protect potentially sensitive information in your connection string, you should move it out of source code. You can avoid scaffolding the connection string by using the Name= syntax to read it from configuration - see https://go.microsoft.com/fwlink/?linkid=2131148. For more guidance on storing connection strings, see https://go.microsoft.com/fwlink/?LinkId=723263.
-//         => optionsBuilder.UseNpgsql("Host=localhost;Database=LawyerPlatformDB;Username=postgres;Password=791156");
-
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
-        modelBuilder
-            .HasPostgresEnum("appointment_status", new[] { "Pending", "Confirmed", "Completed", "Cancelled" })
-            .HasPostgresEnum("payment_status", new[] { "Pending", "Completed", "Failed", "Refunded" })
-            .HasPostgresEnum("user_role", new[] { "Customer", "Lawyer", "Admin" });
-
         modelBuilder.Entity<Appointment>(entity =>
         {
             entity.HasKey(e => e.Appointmentid).HasName("appointments_pkey");
 
             entity.ToTable("appointments");
-
-            entity.HasIndex(e => e.Scheduledate, "idx_appointments_date");
-
-            entity.HasIndex(e => e.Lawtypeid, "idx_appointments_lawtypeid");
-
-            entity.HasIndex(e => e.Lawyerid, "idx_appointments_lawyerid");
-
-            entity.HasIndex(e => e.Userid, "idx_appointments_userid");
 
             entity.Property(e => e.Appointmentid).HasColumnName("appointmentid");
             entity.Property(e => e.Createdat)
@@ -90,8 +72,9 @@ protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
             entity.Property(e => e.Scheduledate).HasColumnName("scheduledate");
             entity.Property(e => e.Scheduletime).HasColumnName("scheduletime");
             entity.Property(e => e.Status)
-                .HasColumnName("status")
-                .HasConversion<string>(); // Ánh xạ enum sang string trong database
+                .HasMaxLength(50)
+                .HasDefaultValueSql("'Pending'::character varying")
+                .HasColumnName("status");
             entity.Property(e => e.Totalamount)
                 .HasPrecision(10, 2)
                 .HasDefaultValueSql("0.00")
@@ -123,10 +106,6 @@ protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
             entity.HasKey(e => e.Customerformid).HasName("customerforms_pkey");
 
             entity.ToTable("customerforms");
-
-            entity.HasIndex(e => e.Status, "idx_customerforms_status");
-
-            entity.HasIndex(e => e.Userid, "idx_customerforms_userid");
 
             entity.Property(e => e.Customerformid).HasColumnName("customerformid");
             entity.Property(e => e.Createdat)
@@ -237,10 +216,6 @@ protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
 
             entity.ToTable("lawyers");
 
-            entity.HasIndex(e => e.Rating, "idx_lawyers_rating");
-
-            entity.HasIndex(e => e.Userid, "idx_lawyers_userid");
-
             entity.Property(e => e.Lawyerid).HasColumnName("lawyerid");
             entity.Property(e => e.Consultationfee)
                 .HasPrecision(10, 2)
@@ -309,10 +284,6 @@ protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
 
             entity.ToTable("payment");
 
-            entity.HasIndex(e => e.Transactionid, "idx_payment_transactionid");
-
-            entity.HasIndex(e => e.Userid, "idx_payment_userid");
-
             entity.HasIndex(e => e.Appointmentid, "payment_appointmentid_key").IsUnique();
 
             entity.HasIndex(e => e.Customerformid, "payment_customerformid_key").IsUnique();
@@ -337,8 +308,9 @@ protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
                 .HasColumnType("timestamp without time zone")
                 .HasColumnName("paymentdate");
             entity.Property(e => e.Status)
-                .HasColumnName("status")
-                .HasConversion<string>(); // Ánh xạ enum sang string trong database
+                .HasMaxLength(50)
+                .HasDefaultValueSql("'Pending'::character varying")
+                .HasColumnName("status");
             entity.Property(e => e.Transactionid)
                 .HasMaxLength(255)
                 .HasColumnName("transactionid");
@@ -375,8 +347,6 @@ protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
 
             entity.ToTable("refreshtokens");
 
-            entity.HasIndex(e => e.Userid, "idx_refreshtokens_userid");
-
             entity.HasIndex(e => e.Token, "refreshtokens_token_key").IsUnique();
 
             entity.Property(e => e.Id).HasColumnName("id");
@@ -412,8 +382,6 @@ protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
 
             entity.ToTable("users");
 
-            entity.HasIndex(e => e.Email, "idx_users_email");
-
             entity.HasIndex(e => e.Email, "users_email_key").IsUnique();
 
             entity.Property(e => e.Userid).HasColumnName("userid");
@@ -437,8 +405,9 @@ protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
                 .HasMaxLength(20)
                 .HasColumnName("phone");
             entity.Property(e => e.Role)
-                .HasColumnName("role")
-                .HasConversion<string>(); // Ánh xạ enum sang string trong database
+                .HasMaxLength(50)
+                .HasDefaultValueSql("'Customer'::character varying")
+                .HasColumnName("role");
             entity.Property(e => e.Updatedat)
                 .HasDefaultValueSql("CURRENT_TIMESTAMP")
                 .HasColumnType("timestamp without time zone")
@@ -450,8 +419,6 @@ protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
             entity.HasKey(e => e.Usercreditid).HasName("usercredit_pkey");
 
             entity.ToTable("usercredit");
-
-            entity.HasIndex(e => e.Userid, "idx_usercredit_userid");
 
             entity.Property(e => e.Usercreditid).HasColumnName("usercreditid");
             entity.Property(e => e.Bookingremaining)
