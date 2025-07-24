@@ -19,9 +19,9 @@ public partial class Payment
 
     public string? Transactionid { get; set; }
 
-    public DateTime? Paymentdate { get; set; }
+    public PaymentStatus Status { get; set; }
 
-    public PaymentStatus Status { get; set; } = PaymentStatus.Pending;
+    public DateTime? Paymentdate { get; set; }
 
     public DateTime? Createdat { get; set; }
 

@@ -17,11 +17,11 @@ public partial class User
 
     public string? Avatar { get; set; }
 
-    public UserRole Role { get; set; }
-
     public DateTime? Createdat { get; set; }
 
     public DateTime? Updatedat { get; set; }
+
+    public BusinessObjects.Models.UserRole Role { get; set; }
 
     public virtual ICollection<Appointment> Appointments { get; set; } = new List<Appointment>();
 
@@ -32,6 +32,8 @@ public partial class User
     public virtual ICollection<Lawyer> Lawyers { get; set; } = new List<Lawyer>();
 
     public virtual ICollection<Payment> Payments { get; set; } = new List<Payment>();
+
+    public virtual ICollection<Refreshtoken> Refreshtokens { get; set; } = new List<Refreshtoken>();
 
     public virtual ICollection<Usercredit> Usercredits { get; set; } = new List<Usercredit>();
 }

@@ -1,13 +1,12 @@
 using System.Collections.Generic;
 using System.Threading.Tasks;
-using BusinessObjects.DTO.Appointment;
-using BusinessObjects.Models;
+using BusinessObjects.DTO.User;
 
 namespace Services.Interfaces
 {
     public interface ILawyerService
     {
-        Task<IEnumerable<LawyerDTO>> GetAllLawyersAsync();
-        Task<LawyerDTO> GetLawyerByIdAsync(int lawyerId);
+        Task<IEnumerable<LawyerDto>> GetAllLawyersAsync();
+        Task<LawyerDto> GetLawyerByIdAsync(int lawyerId);
     }
 }

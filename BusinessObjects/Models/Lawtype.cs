@@ -9,7 +9,7 @@ public partial class Lawtype
 
     public string Lawtype1 { get; set; } = null!;
 
-    public virtual ICollection<Lawform> Lawforms { get; set; } = new List<Lawform>();
+    public virtual ICollection<Appointment> Appointments { get; set; } = new List<Appointment>();
 
-    public virtual ICollection<Service> Services { get; set; } = new List<Service>();
+    public virtual ICollection<Lawform> Lawforms { get; set; } = new List<Lawform>();
 }

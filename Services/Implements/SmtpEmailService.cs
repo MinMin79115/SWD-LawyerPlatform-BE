@@ -4,7 +4,7 @@ using System.Net;
 using System.Net.Mail;
 using System.Threading.Tasks;
 using BusinessObjects.Common;
-using BusinessObjects.Models;
+using BusinessObjects.DTO.Email;
 using Microsoft.Extensions.Options;
 using Services.Interfaces;
 
@@ -19,7 +19,7 @@ namespace Services.Implements
             _smtpSettings = smtpSettings.Value;
         }
 
-        public async Task SendEmailAsync(EmailMessage emailMessage)
+        public async Task SendEmailAsync(EmailMessageDto emailMessage)
         {
             var message = new MailMessage
             {
@@ -54,7 +54,7 @@ namespace Services.Implements
             
             if (!File.Exists(templatePath))
             {
-                throw new FileNotFoundException($"Email template '{templateName}' not found.");
+                throw new FileNotFoundException($"Email template \'{templateName}\' not found.");
             }
 
             string body = await File.ReadAllTextAsync(templatePath);
@@ -68,13 +68,11 @@ namespace Services.Implements
             }
 
             // Gửi email với nội dung đã tạo
-            await SendEmailAsync(new EmailMessage 
+            await SendEmailAsync(new EmailMessageDto 
             { 
                 To = to, 
                 Subject = subject, 
-                Content = body,
-                IsSent = false,
-                DateSent = DateTime.Now
+                Content = body
             });
         }
     }

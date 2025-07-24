@@ -26,11 +26,13 @@ namespace Repositories.Implements
 
         public async Task<string> GetUserRoleAsync(int userId)
         {
-            var user = await _dbSet.FindAsync(userId);
-            if (user == null)
-                return "Customer";
+            var user = await _dbSet.Where(u => u.Userid == userId).Select(u => new { u.Role }).FirstOrDefaultAsync();
             
-            // Chuyển đổi từ enum sang string
+            if (user == null)
+            {
+                return "Unknown"; // Hoặc xử lý lỗi phù hợp nếu người dùng không tồn tại
+            }
+            
             return user.Role.ToString();
         }
     }

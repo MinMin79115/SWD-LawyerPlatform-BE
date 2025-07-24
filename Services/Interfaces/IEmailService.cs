@@ -1,11 +1,11 @@
 using System.Threading.Tasks;
-using BusinessObjects.Models;
+using BusinessObjects.DTO.Email;
 
 namespace Services.Interfaces
 {
     public interface IEmailService
     {
-        Task SendEmailAsync(EmailMessage emailMessage);
+        Task SendEmailAsync(EmailMessageDto emailMessage);
         Task SendEmailWithTemplateAsync(string to, string subject, string templateName, object model);
     }
 } 

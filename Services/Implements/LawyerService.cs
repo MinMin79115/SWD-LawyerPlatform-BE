@@ -2,8 +2,8 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using BusinessObjects.DTO.Appointment;
 using BusinessObjects.Models;
+using BusinessObjects.DTO.User;
 using Microsoft.Extensions.Logging;
 using Repositories.Interfaces;
 using Services.Interfaces;
@@ -21,13 +21,13 @@ namespace Services.Implements
             _logger = logger;
         }
 
-        public async Task<IEnumerable<LawyerDTO>> GetAllLawyersAsync()
+        public async Task<IEnumerable<LawyerDto>> GetAllLawyersAsync()
         {
             try
             {
                 var lawyers = await _unitOfWork.LawyerRepository.GetLawyersWithUserInfoAsync();
                 
-                return lawyers.Select(l => new LawyerDTO
+                return lawyers.Select(l => new LawyerDto
                 {
                     Id = l.Lawyerid.ToString(),
                     Name = l.User?.Name ?? "Unknown",
@@ -48,7 +48,7 @@ namespace Services.Implements
             }
         }
 
-        public async Task<LawyerDTO> GetLawyerByIdAsync(int lawyerId)
+        public async Task<LawyerDto> GetLawyerByIdAsync(int lawyerId)
         {
             try
             {
@@ -60,7 +60,7 @@ namespace Services.Implements
                 
                 var user = await _unitOfWork.Repository<User>().GetByIdAsync(lawyer.Userid);
                 
-                return new LawyerDTO
+                return new LawyerDto
                 {
                     Id = lawyer.Lawyerid.ToString(),
                     Name = user?.Name ?? "Unknown",

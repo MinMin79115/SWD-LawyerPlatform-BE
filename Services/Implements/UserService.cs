@@ -209,5 +209,10 @@ namespace Services.Implements
                 return false;
             }
         }
+
+        public async Task<string> GetUserRoleAsync(int userId)
+        {
+            return await _unitOfWork.UserRepository.GetUserRoleAsync(userId);
+        }
     }
 } 

@@ -99,15 +99,15 @@ builder.Services.AddDbContext<ApplicationDbContext>(options =>
 builder.Services.AddScoped(typeof(IGenericRepository<>), typeof(GenericRepository<>));
 builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
 builder.Services.AddScoped<IUserRepository, UserRepository>();
-builder.Services.AddScoped<IAppointmentRepository, AppointmentRepository>();
+// Đã xóa builder.Services.AddScoped<IAppointmentRepository, AppointmentRepository>();
 builder.Services.AddScoped<ILawyerRepository, LawyerRepository>();
-builder.Services.AddScoped<IServiceRepository, ServiceRepository>();
+// Đã xóa builder.Services.AddScoped<IServiceRepository, ServiceRepository>();
 
 // Đăng ký Services
 builder.Services.AddScoped<IUserService, UserService>();
 builder.Services.AddScoped<IAuthService, AuthService>();
 builder.Services.AddScoped<IEmailService, SmtpEmailService>();
-builder.Services.AddScoped<IAppointmentService, AppointmentService>();
+// Đã xóa builder.Services.AddScoped<IAppointmentService, AppointmentService>();
 builder.Services.AddScoped<ILawyerService, LawyerService>();
 
 // Đảm bảo thư mục EmailTemplates tồn tại

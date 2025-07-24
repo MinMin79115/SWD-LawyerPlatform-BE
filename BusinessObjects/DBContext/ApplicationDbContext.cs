@@ -2,11 +2,16 @@
 using System.Collections.Generic;
 using BusinessObjects.Models;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Configuration;
 
 namespace BusinessObjects.DBContext;
 
 public partial class ApplicationDbContext : DbContext
 {
+    public ApplicationDbContext()
+    {
+    }
+
     public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options)
         : base(options)
     {
@@ -15,8 +20,6 @@ public partial class ApplicationDbContext : DbContext
     public virtual DbSet<Appointment> Appointments { get; set; }
 
     public virtual DbSet<Customerform> Customerforms { get; set; }
-
-    public virtual DbSet<Duration> Durations { get; set; }
 
     public virtual DbSet<Feedback> Feedbacks { get; set; }
 
@@ -30,23 +33,33 @@ public partial class ApplicationDbContext : DbContext
 
     public virtual DbSet<Payment> Payments { get; set; }
 
-    public virtual DbSet<Service> Services { get; set; }
-
-    public virtual DbSet<Servicestype> Servicestypes { get; set; }
+    public virtual DbSet<Refreshtoken> Refreshtokens { get; set; }
 
     public virtual DbSet<User> Users { get; set; }
 
     public virtual DbSet<Usercredit> Usercredits { get; set; }
-    
-    public virtual DbSet<RefreshToken> RefreshTokens { get; set; }
-    
-    public virtual DbSet<EmailMessage> EmailMessages { get; set; }
+    public static string GetConnectionString(string connectionStringName)
+{
+    var config = new ConfigurationBuilder()
+        .SetBasePath(AppDomain.CurrentDomain.BaseDirectory)
+        .AddJsonFile("appsettings.json")
+        .Build();
+
+    string connectionString = config.GetConnectionString(connectionStringName);
+    return connectionString;
+}
+
+protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
+    => optionsBuilder.UseNpgsql(GetConnectionString("DefaultConnection")).UseQueryTrackingBehavior(QueryTrackingBehavior.NoTracking);
+
+//     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
+// #warning To protect potentially sensitive information in your connection string, you should move it out of source code. You can avoid scaffolding the connection string by using the Name= syntax to read it from configuration - see https://go.microsoft.com/fwlink/?linkid=2131148. For more guidance on storing connection strings, see https://go.microsoft.com/fwlink/?LinkId=723263.
+//         => optionsBuilder.UseNpgsql("Host=localhost;Database=LawyerPlatformDB;Username=postgres;Password=791156");
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         modelBuilder
             .HasPostgresEnum("appointment_status", new[] { "Pending", "Confirmed", "Completed", "Cancelled" })
-            .HasPostgresEnum("form_status", new[] { "Draft", "Submitted", "Processing", "Completed", "Cancelled" })
             .HasPostgresEnum("payment_status", new[] { "Pending", "Completed", "Failed", "Refunded" })
             .HasPostgresEnum("user_role", new[] { "Customer", "Lawyer", "Admin" });
 
@@ -58,6 +71,8 @@ public partial class ApplicationDbContext : DbContext
 
             entity.HasIndex(e => e.Scheduledate, "idx_appointments_date");
 
+            entity.HasIndex(e => e.Lawtypeid, "idx_appointments_lawtypeid");
+
             entity.HasIndex(e => e.Lawyerid, "idx_appointments_lawyerid");
 
             entity.HasIndex(e => e.Userid, "idx_appointments_userid");
@@ -67,18 +82,16 @@ public partial class ApplicationDbContext : DbContext
                 .HasDefaultValueSql("CURRENT_TIMESTAMP")
                 .HasColumnType("timestamp without time zone")
                 .HasColumnName("createdat");
+            entity.Property(e => e.Lawtypeid).HasColumnName("lawtypeid");
             entity.Property(e => e.Lawyerid).HasColumnName("lawyerid");
             entity.Property(e => e.Meetinglink)
                 .HasMaxLength(500)
                 .HasColumnName("meetinglink");
             entity.Property(e => e.Scheduledate).HasColumnName("scheduledate");
             entity.Property(e => e.Scheduletime).HasColumnName("scheduletime");
-            entity.Property(e => e.Serviceid).HasColumnName("serviceid");
             entity.Property(e => e.Status)
                 .HasColumnName("status")
-                .HasColumnType("appointment_status")
-                .HasDefaultValue(AppointmentStatus.Pending)
-                .HasConversion<string>();
+                .HasConversion<string>(); // Ánh xạ enum sang string trong database
             entity.Property(e => e.Totalamount)
                 .HasPrecision(10, 2)
                 .HasDefaultValueSql("0.00")
@@ -89,15 +102,15 @@ public partial class ApplicationDbContext : DbContext
                 .HasColumnName("updatedat");
             entity.Property(e => e.Userid).HasColumnName("userid");
 
+            entity.HasOne(d => d.Lawtype).WithMany(p => p.Appointments)
+                .HasForeignKey(d => d.Lawtypeid)
+                .OnDelete(DeleteBehavior.Cascade)
+                .HasConstraintName("appointments_lawtypeid_fkey");
+
             entity.HasOne(d => d.Lawyer).WithMany(p => p.Appointments)
                 .HasForeignKey(d => d.Lawyerid)
                 .OnDelete(DeleteBehavior.Cascade)
                 .HasConstraintName("appointments_lawyerid_fkey");
-
-            entity.HasOne(d => d.Service).WithMany(p => p.Appointments)
-                .HasForeignKey(d => d.Serviceid)
-                .OnDelete(DeleteBehavior.Cascade)
-                .HasConstraintName("appointments_serviceid_fkey");
 
             entity.HasOne(d => d.User).WithMany(p => p.Appointments)
                 .HasForeignKey(d => d.Userid)
@@ -110,6 +123,8 @@ public partial class ApplicationDbContext : DbContext
             entity.HasKey(e => e.Customerformid).HasName("customerforms_pkey");
 
             entity.ToTable("customerforms");
+
+            entity.HasIndex(e => e.Status, "idx_customerforms_status");
 
             entity.HasIndex(e => e.Userid, "idx_customerforms_userid");
 
@@ -126,10 +141,8 @@ public partial class ApplicationDbContext : DbContext
                 .HasMaxLength(500)
                 .HasColumnName("linkform");
             entity.Property(e => e.Status)
-                .HasColumnName("status")
-                .HasColumnType("form_status")
-                .HasDefaultValue(FormStatus.Draft)
-                .HasConversion<string>();
+                .HasDefaultValueSql("'Draft'::text")
+                .HasColumnName("status");
             entity.Property(e => e.Totalamount)
                 .HasPrecision(10, 2)
                 .HasDefaultValueSql("0.00")
@@ -149,18 +162,6 @@ public partial class ApplicationDbContext : DbContext
                 .HasForeignKey(d => d.Userid)
                 .OnDelete(DeleteBehavior.Cascade)
                 .HasConstraintName("customerforms_userid_fkey");
-        });
-
-        modelBuilder.Entity<Duration>(entity =>
-        {
-            entity.HasKey(e => e.Durationid).HasName("durations_pkey");
-
-            entity.ToTable("durations");
-
-            entity.HasIndex(e => e.Value, "durations_value_key").IsUnique();
-
-            entity.Property(e => e.Durationid).HasColumnName("durationid");
-            entity.Property(e => e.Value).HasColumnName("value");
         });
 
         modelBuilder.Entity<Feedback>(entity =>
@@ -207,7 +208,6 @@ public partial class ApplicationDbContext : DbContext
                 .HasPrecision(10, 2)
                 .HasDefaultValueSql("0.00")
                 .HasColumnName("price");
-            entity.Property(e => e.Servicestypeid).HasColumnName("servicestypeid");
             entity.Property(e => e.Updatedat)
                 .HasDefaultValueSql("CURRENT_TIMESTAMP")
                 .HasColumnType("timestamp without time zone")
@@ -217,11 +217,6 @@ public partial class ApplicationDbContext : DbContext
                 .HasForeignKey(d => d.Lawtypeid)
                 .OnDelete(DeleteBehavior.Cascade)
                 .HasConstraintName("lawform_lawtypeid_fkey");
-
-            entity.HasOne(d => d.Servicestype).WithMany(p => p.Lawforms)
-                .HasForeignKey(d => d.Servicestypeid)
-                .OnDelete(DeleteBehavior.Cascade)
-                .HasConstraintName("lawform_servicestypeid_fkey");
         });
 
         modelBuilder.Entity<Lawtype>(entity =>
@@ -318,6 +313,12 @@ public partial class ApplicationDbContext : DbContext
 
             entity.HasIndex(e => e.Userid, "idx_payment_userid");
 
+            entity.HasIndex(e => e.Appointmentid, "payment_appointmentid_key").IsUnique();
+
+            entity.HasIndex(e => e.Customerformid, "payment_customerformid_key").IsUnique();
+
+            entity.HasIndex(e => e.Packageid, "payment_packageid_key").IsUnique();
+
             entity.HasIndex(e => e.Transactionid, "payment_transactionid_key").IsUnique();
 
             entity.Property(e => e.Paymentid).HasColumnName("paymentid");
@@ -337,9 +338,7 @@ public partial class ApplicationDbContext : DbContext
                 .HasColumnName("paymentdate");
             entity.Property(e => e.Status)
                 .HasColumnName("status")
-                .HasColumnType("payment_status")
-                .HasDefaultValue(PaymentStatus.Pending)
-                .HasConversion<string>();
+                .HasConversion<string>(); // Ánh xạ enum sang string trong database
             entity.Property(e => e.Transactionid)
                 .HasMaxLength(255)
                 .HasColumnName("transactionid");
@@ -349,18 +348,18 @@ public partial class ApplicationDbContext : DbContext
                 .HasColumnName("updatedat");
             entity.Property(e => e.Userid).HasColumnName("userid");
 
-            entity.HasOne(d => d.Appointment).WithMany(p => p.Payments)
-                .HasForeignKey(d => d.Appointmentid)
+            entity.HasOne(d => d.Appointment).WithOne(p => p.Payment)
+                .HasForeignKey<Payment>(d => d.Appointmentid)
                 .OnDelete(DeleteBehavior.SetNull)
                 .HasConstraintName("payment_appointmentid_fkey");
 
-            entity.HasOne(d => d.Customerform).WithMany(p => p.Payments)
-                .HasForeignKey(d => d.Customerformid)
+            entity.HasOne(d => d.Customerform).WithOne(p => p.Payment)
+                .HasForeignKey<Payment>(d => d.Customerformid)
                 .OnDelete(DeleteBehavior.SetNull)
                 .HasConstraintName("payment_customerformid_fkey");
 
-            entity.HasOne(d => d.Package).WithMany(p => p.Payments)
-                .HasForeignKey(d => d.Packageid)
+            entity.HasOne(d => d.Package).WithOne(p => p.Payment)
+                .HasForeignKey<Payment>(d => d.Packageid)
                 .OnDelete(DeleteBehavior.SetNull)
                 .HasConstraintName("payment_packageid_fkey");
 
@@ -370,55 +369,41 @@ public partial class ApplicationDbContext : DbContext
                 .HasConstraintName("payment_userid_fkey");
         });
 
-        modelBuilder.Entity<Service>(entity =>
+        modelBuilder.Entity<Refreshtoken>(entity =>
         {
-            entity.HasKey(e => e.Serviceid).HasName("services_pkey");
+            entity.HasKey(e => e.Id).HasName("refreshtokens_pkey");
 
-            entity.ToTable("services");
+            entity.ToTable("refreshtokens");
 
-            entity.Property(e => e.Serviceid).HasColumnName("serviceid");
-            entity.Property(e => e.Createdat)
-                .HasDefaultValueSql("CURRENT_TIMESTAMP")
+            entity.HasIndex(e => e.Userid, "idx_refreshtokens_userid");
+
+            entity.HasIndex(e => e.Token, "refreshtokens_token_key").IsUnique();
+
+            entity.Property(e => e.Id).HasColumnName("id");
+            entity.Property(e => e.Addeddate)
                 .HasColumnType("timestamp without time zone")
-                .HasColumnName("createdat");
-            entity.Property(e => e.Durationid).HasColumnName("durationid");
-            entity.Property(e => e.Lawtypeid).HasColumnName("lawtypeid");
-            entity.Property(e => e.Price)
-                .HasPrecision(10, 2)
-                .HasDefaultValueSql("0.00")
-                .HasColumnName("price");
-            entity.Property(e => e.Servicestypeid).HasColumnName("servicestypeid");
-            entity.Property(e => e.Updatedat)
-                .HasDefaultValueSql("CURRENT_TIMESTAMP")
+                .HasColumnName("addeddate");
+            entity.Property(e => e.Expirydate)
                 .HasColumnType("timestamp without time zone")
-                .HasColumnName("updatedat");
+                .HasColumnName("expirydate");
+            entity.Property(e => e.Isrevoked)
+                .HasDefaultValue(false)
+                .HasColumnName("isrevoked");
+            entity.Property(e => e.Isused)
+                .HasDefaultValue(false)
+                .HasColumnName("isused");
+            entity.Property(e => e.Jwtid)
+                .HasMaxLength(255)
+                .HasColumnName("jwtid");
+            entity.Property(e => e.Token)
+                .HasMaxLength(255)
+                .HasColumnName("token");
+            entity.Property(e => e.Userid).HasColumnName("userid");
 
-            entity.HasOne(d => d.Duration).WithMany(p => p.Services)
-                .HasForeignKey(d => d.Durationid)
+            entity.HasOne(d => d.User).WithMany(p => p.Refreshtokens)
+                .HasForeignKey(d => d.Userid)
                 .OnDelete(DeleteBehavior.Cascade)
-                .HasConstraintName("services_durationid_fkey");
-
-            entity.HasOne(d => d.Lawtype).WithMany(p => p.Services)
-                .HasForeignKey(d => d.Lawtypeid)
-                .OnDelete(DeleteBehavior.Cascade)
-                .HasConstraintName("services_lawtypeid_fkey");
-
-            entity.HasOne(d => d.Servicestype).WithMany(p => p.Services)
-                .HasForeignKey(d => d.Servicestypeid)
-                .OnDelete(DeleteBehavior.Cascade)
-                .HasConstraintName("services_servicestypeid_fkey");
-        });
-
-        modelBuilder.Entity<Servicestype>(entity =>
-        {
-            entity.HasKey(e => e.Servicetypeid).HasName("servicestypes_pkey");
-
-            entity.ToTable("servicestypes");
-
-            entity.HasIndex(e => e.Servicestype1, "servicestypes_servicestype_key").IsUnique();
-
-            entity.Property(e => e.Servicetypeid).HasColumnName("servicetypeid");
-            entity.Property(e => e.Servicestype1).HasColumnName("servicestype");
+                .HasConstraintName("refreshtokens_userid_fkey");
         });
 
         modelBuilder.Entity<User>(entity =>
@@ -453,9 +438,7 @@ public partial class ApplicationDbContext : DbContext
                 .HasColumnName("phone");
             entity.Property(e => e.Role)
                 .HasColumnName("role")
-                .HasColumnType("user_role")
-                .HasDefaultValue(UserRole.Customer)
-                .HasConversion<string>();
+                .HasConversion<string>(); // Ánh xạ enum sang string trong database
             entity.Property(e => e.Updatedat)
                 .HasDefaultValueSql("CURRENT_TIMESTAMP")
                 .HasColumnType("timestamp without time zone")
@@ -491,77 +474,6 @@ public partial class ApplicationDbContext : DbContext
                 .HasForeignKey(d => d.Userid)
                 .OnDelete(DeleteBehavior.Cascade)
                 .HasConstraintName("usercredit_userid_fkey");
-        });
-        
-        modelBuilder.Entity<RefreshToken>(entity =>
-        {
-            entity.ToTable("refreshtokens");
-            
-            entity.Property(e => e.Id)
-                .HasColumnName("id")
-                .UseIdentityAlwaysColumn();
-                
-            entity.Property(e => e.Token)
-                .IsRequired()
-                .HasColumnName("token");
-                
-            entity.Property(e => e.JwtId)
-                .IsRequired()
-                .HasColumnName("jwtid");
-                
-            entity.Property(e => e.IsUsed)
-                .HasColumnName("isused");
-                
-            entity.Property(e => e.IsRevoked)
-                .HasColumnName("isrevoked");
-                
-            entity.Property(e => e.AddedDate)
-                .HasColumnName("addeddate")
-                .HasColumnType("timestamp without time zone");
-                
-            entity.Property(e => e.ExpiryDate)
-                .HasColumnName("expirydate")
-                .HasColumnType("timestamp without time zone");
-                
-            entity.Property(e => e.UserId)
-                .HasColumnName("userid");
-                
-            entity.HasOne(d => d.User)
-                .WithMany()
-                .HasForeignKey(d => d.UserId)
-                .OnDelete(DeleteBehavior.Cascade)
-                .HasConstraintName("refreshtoken_userid_fkey");
-        });
-        
-        modelBuilder.Entity<EmailMessage>(entity =>
-        {
-            entity.ToTable("emailmessages");
-            
-            entity.Property(e => e.Id)
-                .HasColumnName("id")
-                .UseIdentityAlwaysColumn();
-                
-            entity.Property(e => e.To)
-                .IsRequired()
-                .HasColumnName("to");
-                
-            entity.Property(e => e.Subject)
-                .IsRequired()
-                .HasColumnName("subject");
-                
-            entity.Property(e => e.Content)
-                .IsRequired()
-                .HasColumnName("content");
-                
-            entity.Property(e => e.AttachmentPath)
-                .HasColumnName("attachmentpath");
-                
-            entity.Property(e => e.IsSent)
-                .HasColumnName("issent");
-                
-            entity.Property(e => e.DateSent)
-                .HasColumnName("datesent")
-                .HasColumnType("timestamp without time zone");
         });
 
         OnModelCreatingPartial(modelBuilder);

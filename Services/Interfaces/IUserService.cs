@@ -21,5 +21,6 @@ namespace Services.Interfaces
         Task<UserDto> GetUserDtoByIdAsync(int userId);
         Task<bool> UpdateUserAsync(int userId, UpdateUserRequest request);
         Task<bool> DeleteUserAsync(int userId);
+        Task<string> GetUserRoleAsync(int userId);
     }
 } 

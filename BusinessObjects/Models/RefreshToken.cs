@@ -1,25 +1,25 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 
 namespace BusinessObjects.Models;
 
-public partial class RefreshToken
+public partial class Refreshtoken
 {
     public int Id { get; set; }
-    
+
     public string Token { get; set; } = null!;
-    
-    public string JwtId { get; set; } = null!;
-    
-    public bool IsUsed { get; set; }
-    
-    public bool IsRevoked { get; set; }
-    
-    public DateTime AddedDate { get; set; }
-    
-    public DateTime ExpiryDate { get; set; }
-    
-    public int UserId { get; set; }
-    
-    public virtual User User { get; set; } = null!;
+
+    public string Jwtid { get; set; } = null!;
+
+    public int? Userid { get; set; }
+
+    public DateTime Addeddate { get; set; }
+
+    public DateTime Expirydate { get; set; }
+
+    public bool? Isused { get; set; }
+
+    public bool? Isrevoked { get; set; }
+
+    public virtual User? User { get; set; }
 }

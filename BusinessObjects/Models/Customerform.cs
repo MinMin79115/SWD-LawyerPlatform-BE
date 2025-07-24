@@ -11,13 +11,13 @@ public partial class Customerform
 
     public int? Lawformid { get; set; }
 
+    public string? Status { get; set; }
+
     public decimal Totalamount { get; set; }
 
     public string? Formdata { get; set; }
 
     public string? Linkform { get; set; }
-
-    public FormStatus Status { get; set; } = FormStatus.Draft;
 
     public DateTime? Createdat { get; set; }
 
@@ -25,7 +25,7 @@ public partial class Customerform
 
     public virtual Lawform? Lawform { get; set; }
 
-    public virtual ICollection<Payment> Payments { get; set; } = new List<Payment>();
+    public virtual Payment? Payment { get; set; }
 
     public virtual User? User { get; set; }
 }

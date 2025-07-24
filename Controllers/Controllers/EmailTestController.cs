@@ -1,6 +1,6 @@
 using System.Threading.Tasks;
 using BusinessObjects.Common;
-using BusinessObjects.Models;
+using BusinessObjects.DTO.Email;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Services.Interfaces;
@@ -29,13 +29,11 @@ namespace Controllers.Controllers
         {
             try
             {
-                var emailMessage = new EmailMessage
+                var emailMessage = new EmailMessageDto
                 {
                     To = to,
                     Subject = "Email Test từ Lawyer Platform",
-                    Content = "<h1>Xin chào!</h1><p>Đây là email test từ API Lawyer Platform.</p>",
-                    IsSent = false,
-                    DateSent = System.DateTime.Now
+                    Content = "<h1>Xin chào!</h1><p>Đây là email test từ API Lawyer Platform.</p>"
                 };
 
                 await _emailService.SendEmailAsync(emailMessage);

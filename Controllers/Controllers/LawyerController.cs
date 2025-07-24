@@ -1,7 +1,6 @@
 using System;
 using System.Threading.Tasks;
 using BusinessObjects.Common;
-using BusinessObjects.DTO.Appointment;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Services.Interfaces;

@@ -46,16 +46,16 @@ namespace Services.Implements
             // Lấy thông tin user
             var user = await _userService.GetUserByEmailAsync(request.Email);
 
-            // Lấy role của user từ thuộc tính Role
-            string role = user.Role.ToString();
+            // Lấy role của user từ UserService
+            string role = await _userService.GetUserRoleAsync(user.Userid);
             
             // Tạo JWT token và refresh token
             var jwtId = Guid.NewGuid().ToString();
             authResult.Token = GenerateJwtToken(user.Email, role, user.Userid, jwtId);
             
             // Tạo refresh token và lưu vào DB
-            var refreshToken = GenerateRefreshToken(jwtId, user.Userid);
-            await _unitOfWork.Repository<RefreshToken>().AddAsync(refreshToken);
+            var refreshToken = GenerateRefreshtoken(jwtId, user.Userid);
+            await _unitOfWork.Repository<Refreshtoken>().AddAsync(refreshToken);
             await _unitOfWork.SaveChangesAsync();
             
             authResult.RefreshToken = refreshToken.Token;
@@ -117,8 +117,8 @@ namespace Services.Implements
             }
 
             // Tìm refresh token trong DB
-            var refreshToken = await _unitOfWork.Repository<RefreshToken>().GetFirstOrDefaultAsync(
-                x => x.Token == tokenRequest.RefreshToken && x.JwtId == jti && x.UserId == userId);
+            var refreshToken = await _unitOfWork.Repository<Refreshtoken>().GetFirstOrDefaultAsync(
+                x => x.Token == tokenRequest.RefreshToken && x.Jwtid == jti && x.Userid == userId);
 
             if (refreshToken == null)
             {
@@ -128,7 +128,7 @@ namespace Services.Implements
             }
 
             // Kiểm tra refresh token còn hiệu lực không
-            if (refreshToken.ExpiryDate < DateTime.Now)
+            if (refreshToken.Expirydate < DateTime.Now)
             {
                 authResult.Success = false;
                 authResult.Errors.Add("Refresh token đã hết hạn");
@@ -136,7 +136,7 @@ namespace Services.Implements
             }
 
             // Kiểm tra refresh token đã bị sử dụng hay thu hồi chưa
-            if (refreshToken.IsUsed || refreshToken.IsRevoked)
+            if (refreshToken.Isused == true || refreshToken.Isrevoked == true)
             {
                 authResult.Success = false;
                 authResult.Errors.Add("Refresh token đã được sử dụng hoặc bị thu hồi");
@@ -144,28 +144,28 @@ namespace Services.Implements
             }
 
             // Đánh dấu token đã sử dụng
-            refreshToken.IsUsed = true;
-            _unitOfWork.Repository<RefreshToken>().Update(refreshToken);
+            refreshToken.Isused = true;
+            _unitOfWork.Repository<Refreshtoken>().Update(refreshToken);
             
             // Lấy user để lấy role
-            var user = await _unitOfWork.Repository<User>().GetByIdAsync(userId);
-            if (user == null)
-            {
-                authResult.Success = false;
-                authResult.Errors.Add("Không tìm thấy người dùng");
-                return authResult;
-            }
+            //var user = await _unitOfWork.Repository<User>().GetByIdAsync(userId);
+            //if (user == null)
+            //{
+            //    authResult.Success = false;
+            //    authResult.Errors.Add("Không tìm thấy người dùng");
+            //    return authResult;
+            //}
             
-            // Lấy role từ thuộc tính Role
-            string role = user.Role.ToString();
+            // Lấy role từ UserService
+            string role = await _userService.GetUserRoleAsync(userId);
 
             // Tạo JWT token mới và refresh token mới
             var newJwtId = Guid.NewGuid().ToString();
             authResult.Token = GenerateJwtToken(email, role, userId, newJwtId);
             
             // Tạo refresh token mới và lưu vào DB
-            var newRefreshToken = GenerateRefreshToken(newJwtId, userId);
-            await _unitOfWork.Repository<RefreshToken>().AddAsync(newRefreshToken);
+            var newRefreshToken = GenerateRefreshtoken(newJwtId, userId);
+            await _unitOfWork.Repository<Refreshtoken>().AddAsync(newRefreshToken);
             
             // Lưu thay đổi vào DB
             await _unitOfWork.SaveChangesAsync();
@@ -201,17 +201,17 @@ namespace Services.Implements
             return new JwtSecurityTokenHandler().WriteToken(token);
         }
         
-        private RefreshToken GenerateRefreshToken(string jwtId, int userId)
+        private Refreshtoken GenerateRefreshtoken(string jwtId, int userId)
         {
-            return new RefreshToken
+            return new Refreshtoken
             {
                 Token = Guid.NewGuid().ToString(),
-                JwtId = jwtId,
-                UserId = userId,
-                AddedDate = DateTime.Now,
-                ExpiryDate = DateTime.Now.AddDays(_jwtSettings.RefreshTokenDurationInDays),
-                IsUsed = false,
-                IsRevoked = false
+                Jwtid = jwtId,
+                Userid = userId,
+                Addeddate = DateTime.Now,
+                Expirydate = DateTime.Now.AddDays(_jwtSettings.RefreshTokenDurationInDays),
+                Isused = false,
+                Isrevoked = false
             };
         }
         

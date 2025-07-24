@@ -15,14 +15,8 @@ namespace Repositories.Interfaces
         // User Repository
         IUserRepository UserRepository { get; }
         
-        // Appointment Repository
-        IAppointmentRepository AppointmentRepository { get; }
-        
         // Lawyer Repository
         ILawyerRepository LawyerRepository { get; }
-        
-        // Service Repository
-        IServiceRepository ServiceRepository { get; }
         
         // Phương thức lưu các thay đổi vào database
         Task<int> SaveChangesAsync();

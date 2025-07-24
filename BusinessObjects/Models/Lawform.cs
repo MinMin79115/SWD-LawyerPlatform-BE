@@ -7,8 +7,6 @@ public partial class Lawform
 {
     public int Lawformid { get; set; }
 
-    public int? Servicestypeid { get; set; }
-
     public int? Lawtypeid { get; set; }
 
     public decimal Price { get; set; }
@@ -22,6 +20,4 @@ public partial class Lawform
     public virtual ICollection<Customerform> Customerforms { get; set; } = new List<Customerform>();
 
     public virtual Lawtype? Lawtype { get; set; }
-
-    public virtual Servicestype? Servicestype { get; set; }
 }
