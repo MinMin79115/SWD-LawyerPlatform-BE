@@ -26,14 +26,14 @@ namespace Repositories.Implements
 
         public async Task<string> GetUserRoleAsync(int userId)
         {
-            var user = await _dbSet.Where(u => u.Userid == userId).Select(u => new { u.Role }).FirstOrDefaultAsync();
+            var user = await _dbSet.Where(u => u.Userid == userId).Select(u => u.Role).FirstOrDefaultAsync();
             
             if (user == null)
             {
                 return "Unknown"; // Hoặc xử lý lỗi phù hợp nếu người dùng không tồn tại
             }
             
-            return user.Role.ToString();
+            return user; // Trả về trực tiếp string, không cần ToString()
         }
     }
 } 

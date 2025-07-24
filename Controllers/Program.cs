@@ -101,6 +101,7 @@ builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
 builder.Services.AddScoped<IUserRepository, UserRepository>();
 // Đã xóa builder.Services.AddScoped<IAppointmentRepository, AppointmentRepository>();
 builder.Services.AddScoped<ILawyerRepository, LawyerRepository>();
+builder.Services.AddScoped<IAppointmentRepository, AppointmentRepository>();
 // Đã xóa builder.Services.AddScoped<IServiceRepository, ServiceRepository>();
 
 // Đăng ký Services
@@ -109,6 +110,7 @@ builder.Services.AddScoped<IAuthService, AuthService>();
 builder.Services.AddScoped<IEmailService, SmtpEmailService>();
 // Đã xóa builder.Services.AddScoped<IAppointmentService, AppointmentService>();
 builder.Services.AddScoped<ILawyerService, LawyerService>();
+builder.Services.AddScoped<IAppointmentService, AppointmentService>();
 
 // Đảm bảo thư mục EmailTemplates tồn tại
 var emailTemplateDir = Path.Combine(builder.Environment.ContentRootPath, "EmailTemplates");

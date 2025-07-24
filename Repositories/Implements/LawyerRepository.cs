@@ -29,5 +29,13 @@ namespace Repositories.Implements
                 .Include(l => l.User)
                 .FirstOrDefaultAsync(l => l.Userid == userId);
         }
+
+        public async Task<List<Lawyer>> GetLawyersWithDetailsAsync()
+        {
+            return await _dbSet
+                .Include(l => l.User)
+                .Where(l => l.User != null)
+                .ToListAsync();
+        }
     }
 }

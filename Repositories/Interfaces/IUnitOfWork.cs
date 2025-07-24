@@ -18,6 +18,12 @@ namespace Repositories.Interfaces
         // Lawyer Repository
         ILawyerRepository LawyerRepository { get; }
         
+        // Appointment Repository
+        IAppointmentRepository AppointmentRepository { get; }
+        
+        // Lawtype Repository
+        IGenericRepository<Lawtype> LawtypeRepository { get; }
+        
         // Phương thức lưu các thay đổi vào database
         Task<int> SaveChangesAsync();
         

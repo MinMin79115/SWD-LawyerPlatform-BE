@@ -18,6 +18,7 @@ namespace Repositories.Implements
         private bool _disposed = false;
         private IUserRepository _userRepository;
         private ILawyerRepository _lawyerRepository;
+        private IAppointmentRepository _appointmentRepository;
         // Đã xóa private IServiceRepository _serviceRepository;
 
         public UnitOfWork(ApplicationDbContext context)
@@ -30,6 +31,10 @@ namespace Repositories.Implements
         public IUserRepository UserRepository => _userRepository ??= new UserRepository(_context);
         
         public ILawyerRepository LawyerRepository => _lawyerRepository ??= new LawyerRepository(_context);
+        
+        public IAppointmentRepository AppointmentRepository => _appointmentRepository ??= new AppointmentRepository(_context);
+        
+        public IGenericRepository<Lawtype> LawtypeRepository => Repository<Lawtype>();
         
         // Đã xóa public IServiceRepository ServiceRepository => _serviceRepository ??= new ServiceRepository(_context);
 

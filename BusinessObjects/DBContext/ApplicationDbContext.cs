@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Configuration;
 using BusinessObjects.Models;
 
 namespace BusinessObjects.DBContext;
@@ -38,18 +39,18 @@ public partial class ApplicationDbContext : DbContext
 
     public virtual DbSet<Usercredit> Usercredits { get; set; }
 
-//     public static string GetConnectionString(string connectionStringName)
-{
-    var config = new ConfigurationBuilder()
-        .SetBasePath(AppDomain.CurrentDomain.BaseDirectory)
-        .AddJsonFile("appsettings.json")
-        .Build();
+    public static string GetConnectionString(string connectionStringName)
+    {
+        var config = new ConfigurationBuilder()
+            .SetBasePath(AppDomain.CurrentDomain.BaseDirectory)
+            .AddJsonFile("appsettings.json")
+            .Build();
 
-    string connectionString = config.GetConnectionString(connectionStringName);
-    return connectionString;
-}
+        string connectionString = config.GetConnectionString(connectionStringName);
+        return connectionString;
+    }
 
-protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
+    protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
     => optionsBuilder.UseNpgsql(GetConnectionString("DefaultConnection")).UseQueryTrackingBehavior(QueryTrackingBehavior.NoTracking);
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {

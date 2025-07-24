@@ -9,5 +9,6 @@ namespace Repositories.Interfaces
     {
         Task<IEnumerable<Lawyer>> GetLawyersWithUserInfoAsync();
         Task<Lawyer> GetLawyerByUserIdAsync(int userId);
+        Task<List<Lawyer>> GetLawyersWithDetailsAsync();
     }
 }
